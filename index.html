@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lie or Nah?</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9e6ff;--ink:#1b1740;--card:#fff;--soft:#d8d3ff;--lie:#ff3d7f;--truth:#0f9d8a;--mut:#5a5680;--gold:#ffb703;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14112e;--ink:#f1efff;--card:#221d4a;--soft:#342d6b;--lie:#ff6b9d;--truth:#2fd1b9;--mut:#a7a2d4}}
+:root[data-theme="dark"]{--bg:#14112e;--ink:#f1efff;--card:#221d4a;--soft:#342d6b;--lie:#ff6b9d;--truth:#2fd1b9;--mut:#a7a2d4}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;line-height:1.45;min-height:100vh}
+main{max-width:1000px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:clamp(2.6rem,12vw,4rem);line-height:.92;margin:.1em 0 .25em;font-weight:800;letter-spacing:-.035em}
+h2{font-size:1.7rem;margin:.2em 0;font-weight:800;letter-spacing:-.02em}
+p{margin:.4em 0}.mut{color:var(--mut)}
+button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:14px 18px;font-weight:600;color:var(--ink)}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+.go{background:var(--ink);color:var(--bg);width:100%;margin-top:12px;font-size:1.05rem}
+.daily{background:var(--gold);color:#2b1c00}
+.cast{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:22px 0 4px}
+.cast div{text-align:center;font-size:.72rem;font-weight:600}
+.cast svg{width:100%;height:auto;border-radius:50%;background:var(--soft);display:block;margin-bottom:2px}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.95rem}
+.badge{background:var(--ink);color:var(--bg);border-radius:99px;padding:4px 12px;font-size:.85rem}
+.badge.d{background:var(--gold);color:#2b1c00}
+.hearts{letter-spacing:2px;color:var(--lie)}.hearts i{font-style:normal;opacity:.2}
+.card{background:var(--card);border-radius:24px;padding:18px;margin-top:12px}
+.setup{color:var(--mut);font-size:.95rem;margin:14px 0 0}
+ul.clues{list-style:none;padding:0;margin:10px 0 0}
+ul.clues li{border-left:4px solid var(--ink);padding:5px 0 5px 12px;margin:8px 0;transition:opacity .3s}
+li.hl{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 22%,transparent)}
+li.dim{opacity:.4;text-decoration:line-through}
+.tag{display:inline-block;font-size:.72rem;font-weight:800;border-radius:99px;padding:1px 8px;margin-left:6px;background:var(--soft)}
+.tag.fact{background:var(--gold);color:#2b1c00}
+.hints{display:flex;gap:8px;margin-top:12px}
+.hints button{flex:1;background:var(--soft);font-size:.8rem;padding:10px 8px}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.pick button{padding:18px 8px;font-size:1.25rem;font-weight:800}
+.t{background:var(--truth);color:#06251f}.l{background:var(--lie);color:#2b0013}
+.reveal{margin-top:14px;padding:14px;border-radius:16px;background:var(--soft)}
+.reveal b.ok{color:var(--truth)}.reveal b.no{color:var(--lie)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;text-align:center}
+.stats div{background:var(--card);border-radius:16px;padding:12px;font-size:.85rem}
+.stats strong{display:block;font-size:1.6rem}
+.hide{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+#home,#end{max-width:560px;margin:0 auto}
+.split{margin-top:12px}
+.scene{position:relative;background:var(--soft);border-radius:28px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:14px 14px 0;min-height:48vh}
+.split .card{margin-top:12px}
+@media(min-width:760px){.split{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.split .card{margin-top:0}.scene{position:sticky;top:12px;min-height:76vh}}
+.tagname{position:absolute;top:14px;left:16px}
+.nm{font-weight:800;font-size:1.4rem;line-height:1.1}.rl{color:var(--mut);font-size:.85rem}
+.bub{position:relative;align-self:stretch;background:var(--card);border-radius:20px;padding:12px 14px;margin:56px 0 14px;font-size:1.1rem;font-weight:600;animation:pop .4s}
+.bub::after{content:"";position:absolute;bottom:-9px;left:50%;border:10px solid transparent;border-bottom:0;border-top-color:var(--card)}
+.char{width:min(330px,72%);margin-top:auto}.char svg{width:100%;display:block;overflow:visible}
+.prop{position:absolute;right:16px;top:12px;font-size:2.8rem;animation:fl 2.4s ease-in-out infinite}
+.prop.caught{animation:shk .25s 6,glow 2s forwards;filter:drop-shadow(0 0 10px var(--lie))}
+.prop.safe{animation:up 1.4s forwards}
+.bd{transform-origin:60px 124px;animation:br 3.6s ease-in-out infinite}.hd{transform-origin:60px 96px}
+.ey,.mo,.bw,.bk{transform-box:fill-box;transform-origin:center}
+.bk{animation:bl 4.5s infinite}.sw,.pf{opacity:0}
+@keyframes pop{from{transform:scale(.8);opacity:0}}
+@keyframes fl{50%{transform:translateY(-8px) rotate(6deg)}}
+@keyframes shk{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes glow{to{transform:scale(1.4)}}
+@keyframes up{to{transform:translateY(-60px);opacity:0}}
+@keyframes br{50%{transform:translateY(-2px) scale(1.012)}}
+@keyframes bl{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes jit{50%{transform:translate(calc(1.5px*var(--a)),calc(-1px*var(--a)))}}
+@keyframes dart{0%,100%{transform:translateX(0)}25%{transform:translateX(calc(-7px*var(--a)))}60%{transform:translateX(calc(7px*var(--a)))}80%{transform:translateX(calc(-3px*var(--a)))}}
+@keyframes tk{to{transform:scaleY(calc(1 + 1.4*var(--a)))}}
+@keyframes tw{0%,70%,100%{transform:none}80%{transform:translate(calc(3px*var(--a)),calc(-3px*var(--a))) rotate(calc(10deg*var(--a)))}}
+@keyframes jg{to{transform:translateY(calc(-4px*var(--a)))}}
+@keyframes sh{0%,100%{transform:translateY(0)}35%,65%{transform:translateY(calc(-7px*var(--a)))}}
+@keyframes nd{50%{transform:translateY(calc(4px*var(--a))) rotate(calc(2deg*var(--a)))}}
+@keyframes dr{0%{transform:translateY(0);opacity:var(--a)}100%{transform:translateY(14px);opacity:0}}
+@keyframes pf{0%{transform:translate(0,0) scale(.5);opacity:calc(.9*var(--a))}100%{transform:translate(8px,-10px) scale(1.4);opacity:0}}
+[data-t~=sweat] .hd{animation:jit .14s infinite}[data-t~=sweat] .sw{animation:dr 1s infinite}
+[data-t~=dart] .ey{animation:dart 1.1s infinite}
+[data-t~=talk] .mo{animation:tk .2s infinite alternate}
+[data-t~=twitch] .bw{animation:tw .6s infinite}
+[data-t~=jig] .bd{animation:jg .3s infinite alternate}
+[data-t~=steady] .bk{animation-duration:9s}
+[data-t~=shrug] .bd,[data-t~=shrug] .hd{animation:sh 1.5s infinite}
+[data-t~=annoy] .bw{transform:translateY(calc(4px*var(--a)))}[data-t~=annoy] .pf{animation:pf 1.2s infinite}
+[data-t~=nod] .hd{animation:nd .8s infinite}
+[data-t~=tilt] .hd{transform:rotate(calc(9deg*var(--a)))}[data-t~=tilt] .bw{transform:translateY(calc(-3px*var(--a)))}
+@media (prefers-reduced-motion:reduce){.bd,.bk,.prop{animation:none!important}}
+.scene{background:#ddd}
+.scn{position:absolute;inset:0}.scn svg{width:100%;height:100%;display:block}
+.char{position:relative;--a:1}
+.tagname{background:var(--card);padding:6px 12px;border-radius:14px;z-index:2}
+.prop{z-index:2}
+.tog{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:.9rem;font-weight:600}
+.tog input{width:20px;height:20px;margin-top:2px;accent-color:var(--ink)}
+.hab{background:var(--soft);border-radius:12px;padding:8px 12px;font-size:.9rem;font-weight:600}
+.xtreme{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));background:#e11d48;color:#fff;font-weight:800;z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.badge.x{background:#e11d48;color:#fff}
+.tmr{height:10px;border-radius:5px;background:var(--soft);overflow:hidden;margin-top:8px}
+.tmr i{display:block;height:100%;width:100%;background:#e11d48}
+</style>
+</head>
+<body>
+<main>
+<section id="home">
+  <h1>Lie or Nah?</h1>
+  <p>Someone you know says they didn’t take your stuff. Watch their body language, count the tells, and call it. The cases never run out.</p>
+  <button class="go" id="endless">Play endless</button>
+  <button class="go daily" id="dly">Daily case</button>
+  <label class="tog"><input type="checkbox" id="tend"><span>Tendencies (endless and extreme): every character has a habit that doesn’t count as a tell</span></label>
+  <p class="mut" id="best"></p>
+  <div class="cast" id="cast"></div>
+  <button class="xtreme" id="xbtn">Extreme mode</button>
+  <p class="mut" style="font-size:.85rem">Every character and scenario is made up.</p>
+</section>
+
+<section id="play" class="hide" aria-live="polite">
+  <div class="top"><span class="badge" id="lvl"></span><span class="hearts" id="hearts"></span><span id="score"></span></div>
+  <div class="tmr hide" id="tmr"><i id="tbar"></i></div>
+  <div class="split">
+    <div class="scene">
+      <div class="scn" id="scn"></div>
+      <div class="tagname"><div class="nm" id="name"></div><div class="rl" id="role"></div></div>
+      <div class="prop" id="prop"></div>
+      <div class="bub" id="claim"></div>
+      <div class="char" id="face"></div>
+    </div>
+    <div class="card">
+      <p class="setup" id="setup"></p>
+      <p class="hab hide" id="hab"></p>
+      <p class="mut" id="nt" style="font-size:.85rem"></p>
+      <ul class="clues" id="clues"></ul>
+      <div class="hints" id="hints"><button id="h1"></button></div>
+      <div class="pick" id="pick">
+        <button class="t" data-a="1">Truth</button>
+        <button class="l" data-a="0">Lie</button>
+      </div>
+      <div class="reveal hide" id="reveal"></div>
+      <button class="go hide" id="next">Next</button>
+    </div>
+  </div>
+</section>
+
+<section id="end" class="hide">
+  <h2 id="rank"></h2>
+  <p id="verdict"></p>
+  <div class="stats"><div><strong id="fs"></strong>points</div><div><strong id="fc"></strong>correct</div><div><strong id="fb"></strong>best streak</div></div>
+  <button class="go daily hide" id="share">Copy result</button>
+  <button class="go" id="menu">Back to menu</button>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const CAST=[
+{n:"Pixie",role:"little sister",sk:"#f6d2b5",hr:"#ff4f8b",hs:1,sh:"#7c5cff",ac:"e"},
+{n:"Dex",role:"big brother",sk:"#8d5a3b",hr:"#1b1740",hs:0,sh:"#ff9f1c",ac:"h"},
+{n:"Marlo",role:"mom",sk:"#e0ac86",hr:"#5a2d0c",hs:1,sh:"#12a594",ac:"e"},
+{n:"Gus",role:"dad",sk:"#f1c9a5",hr:"#6b6b7a",hs:0,sh:"#3d5afe",ac:"g"},
+{n:"Zed",role:"cousin",sk:"#c68642",hr:"#111",hs:2,sh:"#ff3d7f",ac:"c"},
+{n:"Juno",role:"best friend",sk:"#fbe0c8",hr:"#ffb703",hs:1,sh:"#fb5607",ac:"g"},
+{n:"Kai",role:"roommate",sk:"#a9714b",hr:"#2b2b2b",hs:3,sh:"#06d6a0",ac:"h"},
+{n:"Ray",role:"uncle",sk:"#d9a07a",hr:"#cfcfcf",hs:3,sh:"#8338ec",ac:"g"},
+{n:"Nana Pea",role:"grandma",sk:"#f3d5bd",hr:"#e5e5ee",hs:4,sh:"#ef476f",ac:"e"},
+{n:"Bo",role:"classmate",sk:"#7a4a2a",hr:"#222",hs:2,sh:"#ffd166",ac:"c"}];
+const ITEMS=["fragrance","AirPods","phone","TV remote","Stanley cup","sneakers","hoodie","game controller","lip gloss","Labubu"];
+const FL=["A photo from {loc} shows your {it} sitting right beside them","Someone saw them leave {loc} with a bulging bag","Your {it} turns up at the bottom of their bag","Find My puts your {it} at their address","Their chat says they “borrowed” your {it} during {ev}","They said they never went near it, but a timestamp shows them alone at {loc} with your {it}","Their sibling mentions they came home with your {it} after {ev}","A security clip shows them leaving {loc} holding something shaped like your {it}"];
+const FT=["Find My shows your {it} stayed at {loc} the whole time","A timestamped chat proves they left {loc} before your {it} went missing","Your {it} turns up in the lost-and-found at {loc}","They show a receipt for their own {it}, dated before {ev}","Their own {it} is a different color and style than yours","A friend confirms they were with them for all of {ev}","Your {it} turns up inside your own jacket pocket","Their phone location puts them far from {loc} when it vanished"];
+const BL=[{id:"sweat",t:"Sweating and fidgeting"},{id:"dart",t:"Eyes darting around"},{id:"talk",t:"Talking fast and over-explaining"},{id:"twitch",t:"A nervous mouth twitch"},{id:"jig",t:"Bouncing and tapping"}];
+const BT=[{id:"steady",t:"Calm, steady eye contact"},{id:"shrug",t:"A casual shrug"},{id:"annoy",t:"Annoyed you asked"},{id:"nod",t:"Open and nodding"},{id:"tilt",t:"Genuinely confused head tilt"}];
+const ICON={"fragrance":"🧴","AirPods":"🎧","phone":"📱","TV remote":"📺","Stanley cup":"🥤","sneakers":"👟","hoodie":"🧥","game controller":"🎮","lip gloss":"💄","Labubu":"🧸"};
+const NO=["It was crowded at {loc} during {ev}","You were only gone for about twenty minutes","Several people drifted in and out of {loc}","You last saw your {it} right before {ev} started","Things got messy at {loc} that day","Your {it} is easy to mix up with someone else’s","Everyone knew you’d brought your {it} along","It happened around dinnertime","The lights were low at {loc}","Somebody left the door open at {loc}","You’d been bragging about your {it} all week","Your {it} wasn’t in its usual spot"];
+const HAB={Pixie:"jig",Dex:"shrug",Marlo:"nod",Gus:"annoy",Zed:"sweat",Juno:"talk",Kai:"steady",Ray:"dart","Nana Pea":"tilt",Bo:"twitch"};
+const HB={jig:"is always bouncing and tapping",shrug:"shrugs at everything",nod:"nods along no matter what",annoy:"is always a little grumpy",sweat:"is always sweaty and fidgety",talk:"never stops talking",steady:"has a permanent poker face",dart:"has wandering eyes",tilt:"always looks a bit confused",twitch:"has a constant mouth twitch"};
+const R=(x,y,w,h,f,r,o)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}"${r?` rx="${r}"`:""}${o?` opacity="${o}"`:""}/>`;
+const C=(x,y,r,f,o)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}"${o?` opacity="${o}"`:""}/>`;
+const PA=(d,f,o)=>`<path d="${d}" fill="${f}"${o?` opacity="${o}"`:""}/>`;
+const WIN=(x,y,w,h,sk)=>R(x-1.5,y-1.5,w+3,h+3,"#fff",1)+R(x,y,w,h,sk)+R(x+w/2-.4,y,.8,h,"#fff")+R(x,y+h/2-.4,w,.8,"#fff");
+const BG={
+Pixie:["#ffc2da","#c9849f",'<path d="M0 8Q25 22 50 8T100 8" fill="none" stroke="#6b3b52" stroke-width=".5"/>'+[8,25,42,58,75,92].map((x,i)=>C(x,13+(i%2)*4,1.6,"#fff3a8")).join("")+WIN(10,24,22,26,"#2b2f66")+C(16,30,.8,"#fff")+C(26,36,.8,"#fff")+C(20,42,.6,"#fff")+R(40,26,16,22,"#fff",1)+PA("M48 40L43 35Q43 31 48 34Q53 31 53 35Z","#ff4f8b")+R(66,34,30,40,"#b05a8f",3)+R(70,48,22,9,"#fff",4)+R(62,58,38,18,"#ff8fb8",3)+R(62,65,38,2.5,"#fff",0,.5)+'<ellipse cx="28" cy="92" rx="24" ry="5" fill="#ff7aa8" opacity=".55"/>'],
+Dex:["#2d3250","#1b1e33",R(0,5,100,1.6,"#00f5d4")+R(14,20,42,26,"#111",2)+R(16,22,38,22,"#1d3557")+R(18,38,12,4,"#06d6a0")+R(36,32,10,3,"#06d6a0")+C(24,34,2.5,"#ffd166")+C(44,28,1.5,"#fff")+R(68,8,18,14,"#e63946",1)+R(70,10,14,10,"#f1faee",1,.3)+R(62,34,32,2,"#6b5a3a")+R(65,26,4,8,"#ff9f1c",1)+C(76,30,3.5,"#06d6a0")+R(84,27,5,7,"#7c5cff",1)+R(3,56,48,20,"#3d405b",4)+R(7,48,40,12,"#4a4e75",4)+R(6,60,42,3,"#2b2d42",0,.5)],
+Marlo:["#ffe9a8","#d9b779",'<pattern id="tl" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#bfe6f2"/><rect width="5.4" height="5.4" fill="#e3f6fb"/></pattern>'+R(0,22,100,30,"url(#tl)")+R(0,2,100,16,"#e8b04a")+[0,1,2,3,4].map(i=>R(2+i*20,4,16,12,"#f4cf7a",1)+R(9+i*20,9,2,2,"#7a5a2a")).join("")+WIN(38,26,24,18,"#bde0ff")+PA("M34 24Q38 34 36 44L34 44Z M66 24Q62 34 64 44L66 44Z","#ff7b7b")+R(0,52,100,3,"#a9814a")+R(0,55,100,19,"#d9b779")+[20,40,60,80].map(x=>R(x,57,.8,15,"#a9814a")).join("")+R(8,44,12,8,"#888",1)+R(6,43,16,1.5,"#666")+PA("M70 52Q78 58 86 52Z","#8b5a2b")+C(74,50,2.5,"#e63946")+C(79,49,2.5,"#ffb703")+C(83,50.5,2.5,"#06d6a0")],
+Gus:["#d7b97f","#6b6f75",'<pattern id="pg" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r=".6" fill="#8a6a35"/></pattern>'+R(4,8,62,40,"#c9a66b",2)+R(4,8,62,40,"url(#pg)",2)+R(12,14,3,18,"#7a5230")+R(8,13,11,5,"#777",1)+R(26,14,3,24,"#999",1)+C(27.5,14,4,"#999")+C(27.5,14,1.6,"#c9a66b")+PA("M38 16L56 16L56 36Z","#bbb")+R(36,14,3,6,"#c33")+C(50,42,5,"#ffd166")+C(50,42,2.2,"#c9a66b")+R(60,18,2.5,14,"#c33",1)+R(72,22,26,2,"#7a5230")+R(74,12,6,10,"#e63946",1)+R(82,14,6,8,"#3b82f6",1)+R(90,13,6,9,"#ffb703",1)+R(6,58,74,4,"#7a5230")+R(10,62,3,12,"#5e3d22")+R(72,62,3,12,"#5e3d22")+R(18,52,16,6,"#d62828",1)+R(22,50,8,2,"#a4161a",1)+'<path d="M84 0V10" stroke="#333" stroke-width=".6"/>'+PA("M78 16L90 16L86 10L82 10Z","#2a9d8f")+PA("M78 16L90 16L96 44L72 44Z","#ffe08a",.25)],
+Zed:["#8fd3ff","#9aa0a6",C(82,16,8,"#ffd54a")+R(14,14,22,6,"#fff",3)+R(20,10,12,6,"#fff",3)+PA("M0 62Q20 44 42 58T80 52T100 58V74H0Z","#7bc29a")+R(0,48,100,26,"#8d939c")+'<g fill="none" stroke-linecap="round" stroke-width="2.2"><path d="M8 58Q16 48 24 58T40 56" stroke="#ff3d7f"/><path d="M52 54Q60 64 70 54T90 58" stroke="#06d6a0"/><path d="M30 68Q44 62 58 68" stroke="#ffd54a"/></g>'+PA("M0 74V50Q26 70 38 74Z","#c4c8cc")+PA("M100 74V52Q74 70 62 74Z","#c4c8cc")+'<path d="M0 50Q26 70 38 74M100 52Q74 70 62 74" stroke="#7b8088" stroke-width="1.2" fill="none"/><path d="M44 62H58M46 62V74M56 62V74" stroke="#555" stroke-width="1" fill="none"/>'+R(70,90,18,2.2,"#ff3d7f",1)+C(73,93.5,1.4,"#222")+C(85,93.5,1.4,"#222")],
+Juno:["#ffe3d1","#efe8e0",R(0,0,100,6,"#fff",0,.6)+[20,50,80].map(x=>R(x-6,2,12,2,"#fff5c2")).join("")+[[4,"#7fd6c2","#2a9d8f"],[36,"#ffb703","#e07a00"],[68,"#ff8fab","#d6336c"]].map(([x,c,d])=>R(x,12,28,48,c,2)+R(x,12,28,7,d,2)+R(x+3,24,22,30,"#fff",1,.55)+C(x+9,31,2.5,"#fff")+R(x+6,34,6,14,d,1,.7)+C(x+19,31,2.5,"#fff")+R(x+16,34,6,14,d,1,.7)).join("")+R(40,62,20,3,"#7a5230",1)+R(42,65,2,8,"#5e3d22")+R(56,65,2,8,"#5e3d22")+R(92,58,6,12,"#8a5a3a",1)+C(95,52,7,"#3fa66b")+C(91,56,5,"#2e8b57")],
+Kai:["#bfeadb","#8a6f56",WIN(8,12,44,36,"#ff9e7a")+C(40,26,5,"#ffd166",.9)+PA("M8 48V38h6v10M16 48V30h7v18M26 48V34h6v14M34 48V28h8v20M44 48V36h8v12","#5b3a5e")+R(62,16,34,2,"#6b4f35")+[64,68,72,76,80,86,90].map((x,i)=>R(x,8,3.2,8,["#e63946","#3b82f6","#ffb703","#06d6a0","#7c5cff","#ff8fab","#fb5607"][i])).join("")+R(62,34,34,2,"#6b4f35")+R(62,40,14,12,"#fff",1)+C(69,46,3,"#ff7aa8")+R(55,60,1.2,14,"#333")+PA("M50 60L62 60L59 52L53 52Z","#ffd166")+R(64,58,32,3,"#6b4f35")+R(66,61,2,12,"#5e3d22")+R(92,61,2,12,"#5e3d22")+R(72,52,14,6,"#333",1)+R(73,53,12,4,"#7fb7ff")+'<ellipse cx="30" cy="92" rx="24" ry="5" fill="#3fa66b" opacity=".5"/>'],
+Ray:["#a6e3ff","#5fb760",C(80,14,8,"#ffd54a")+R(14,12,24,6,"#fff",3)+R(20,8,12,6,"#fff",3)+R(14,36,5,30,"#7a5230")+C(16,28,13,"#3fa66b")+C(8,34,9,"#2e8b57")+C(24,34,9,"#2e8b57")+[0,1,2,3,4,5,6,7,8,9].map(i=>R(i*10+1,42,8,32,"#e0c088")+PA(`M${i*10+1} 42L${i*10+5} 38L${i*10+9} 42Z`,"#e0c088")).join("")+R(0,50,100,2,"#b8935a")+R(0,64,100,2,"#b8935a")+C(78,58,8,"#222")+R(70,56,16,3,"#555")+R(76,66,2,10,"#444")+C(80,46,3,"#fff",.6)+C(83,40,4,"#fff",.45)+'<path d="M0 6Q25 16 50 6T100 6" fill="none" stroke="#555" stroke-width=".4"/>'+[8,25,42,58,75,92].map((x,i)=>C(x,10+(i%2)*3,1.4,"#ffe08a")).join("")],
+"Nana Pea":["#f4cfcf","#b57f50",'<pattern id="fl" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.4" fill="#e59a9a"/><circle cx="0" cy="0" r="1" fill="#e59a9a"/></pattern>'+R(0,0,100,74,"url(#fl)")+WIN(36,16,26,28,"#bde0ff")+PA("M30 12H38V48H30Z","#c1666b")+PA("M60 12H68V48H60Z","#c1666b")+R(6,18,16,20,"#8a5a3a",1)+R(8,20,12,16,"#f5e6d3")+C(14,28,3.5,"#c9a66b")+R(74,20,18,14,"#8a5a3a",1)+R(76,22,14,10,"#cfe8cf")+R(70,46,26,28,"#a34a4a",5)+R(66,56,8,18,"#8c3b3b",3)+R(94,56,6,18,"#8c3b3b",3)+R(8,50,1.5,24,"#8a5a3a")+PA("M3 50L15 50L12 40L6 40Z","#ffd8a6")+R(24,64,22,3,"#8a5a3a")+C(30,62,2,"#fff")+C(38,62,2,"#fff")],
+Bo:["#fff0a8","#4a90a4",R(10,1,24,3,"#fffbe0")+R(66,1,24,3,"#fffbe0")+[0,1,2,3,4,5,6].map(i=>R(i*14.3+1,14,13,50,i%2?"#2f6fd6":"#3b82f6",1)+R(i*14.3+4,19,7,1,"#1e3a8a")+R(i*14.3+4,22,7,1,"#1e3a8a")+R(i*14.3+4,25,7,1,"#1e3a8a")+R(i*14.3+10,40,1.5,5,"#c0c8d8",1)).join("")+C(50,8,4.5,"#fff")+'<path d="M50 8V5M50 8L53 9" stroke="#222" stroke-width=".7" fill="none"/>'+R(34,28,32,18,"#c9a66b",1)+R(37,31,8,6,"#fff")+R(48,31,8,6,"#ffd166")+R(59,31,5,6,"#ff8fab")+R(40,39,10,5,"#8fd3ff")]};
+const bgSvg=n=>{const[w,f,d]=BG[n];return '<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><rect width="100" height="100" fill="'+w+'"/><rect y="74" width="100" height="26" fill="'+f+'"/>'+d+'<rect y="72" width="100" height="2" fill="#000" opacity=".12"/><path d="M0 82H100M0 90H100M22 74L8 100M50 74V100M78 74L92 100" stroke="#000" stroke-width=".4" opacity=".1" fill="none"/><ellipse cx="50" cy="97" rx="26" ry="3" fill="#000" opacity=".2"/></svg>'};
+const CL=[(it,l,e)=>"“I never touched your "+it+".”",(it,l,e)=>"“I was at "+l+" the whole time and never saw your "+it+".”",(it,l,e)=>"“I only came for "+e+", not to take your stuff.”",(it,l,e)=>"“I already told you, I don’t have your "+it+".”",(it,l,e)=>"“Check anywhere you want. Your "+it+" isn’t with me.”",(it,l,e)=>"“Why would I even want your "+it+"?”",(it,l,e)=>"“Maybe you left it at "+l+" and forgot.”"];
+const ST=[(it,l,e)=>"You left your "+it+" out at "+l+" during "+e+". After that, it was gone.",(it,l,e)=>"You brought your "+it+" to "+l+" for "+e+". By the end, it had vanished.",(it,l,e)=>"Your "+it+" was sitting out at "+l+" during "+e+". Later, you couldn’t find it anywhere.",(it,l,e)=>"Right after "+e+" at "+l+", you reached for your "+it+" and it wasn’t there."];
+const LOC={Pixie:["Pixie’s bedroom","a sleepover"],Dex:["the gaming den","game night"],Marlo:["the kitchen","Sunday dinner"],Gus:["the workshop","a weekend project"],Zed:["the skatepark","a skate session"],Juno:["the mall","a shopping trip"],Kai:["the apartment","a study session"],Ray:["the backyard","a BBQ"],"Nana Pea":["the living room","tea time"],Bo:["the school hallway","lunch break"]};
+const LV=["","Easy","Sneaky","Tricky","Expert","Mastermind","Daily case"];
+
+function avatar(c,m){
+  const o=`stroke="#1b1740" stroke-width="3" stroke-linecap="round" fill="none"`;
+  let back="",front="",ac="",brow=`<path d="M40 52Q47 49 55 52M65 52Q73 49 81 52" ${o} stroke-width="2.5"/>`,mouth=`<path d="M50 80Q60 84 70 80" ${o}/>`,extra="";
+  if(c.hs==1)back=`<path d="M20 62Q16 10 60 10Q104 10 100 62L102 104L18 104Z" fill="${c.hr}"/>`;
+  if(c.hs==2)back=`<circle cx="60" cy="32" r="30" fill="${c.hr}"/>`;
+  if(c.hs==4)back=`<circle cx="60" cy="20" r="13" fill="${c.hr}"/>`;
+  if(c.hs!=3&&c.hs!=2)front=`<path d="M27 58Q24 22 60 22Q96 22 93 58Q84 40 60 40Q36 40 27 58Z" fill="${c.hr}"/>`;
+  if(c.ac=="g")ac=`<g stroke="#1b1740" stroke-width="2.5" fill="none"><circle cx="47" cy="62" r="9"/><circle cx="73" cy="62" r="9"/><path d="M56 62h8"/></g>`;
+  if(c.ac=="h")ac=`<path d="M26 62Q26 22 60 22Q94 22 94 62" stroke="#222" stroke-width="5" fill="none"/><rect x="21" y="56" width="10" height="18" rx="4" fill="#222"/><rect x="89" y="56" width="10" height="18" rx="4" fill="#222"/>`;
+  if(c.ac=="e")ac=`<circle cx="28" cy="76" r="3.5" fill="#ffb703"/><circle cx="92" cy="76" r="3.5" fill="#ffb703"/>`;
+  if(c.ac=="c")ac=`<path d="M26 46Q28 16 60 16Q92 16 94 46Z" fill="#222"/><rect x="22" y="44" width="76" height="6" rx="3" fill="#222"/>`;
+  if(m=="l"){brow=`<path d="M38 50L55 55M82 50L65 55" ${o}/>`;mouth=`<path d="M48 79Q64 92 77 73" ${o}/>`;extra=`<path d="M92 48Q96 56 92 60Q88 56 92 48Z" fill="#4cc9f0"/>`}
+  if(m=="t"){brow=`<path d="M39 52Q47 46 55 52M65 52Q73 46 81 52" ${o}/>`;mouth=`<path d="M47 77Q60 90 73 77" ${o}/>`}
+  return `<svg viewBox="0 0 120 124" role="img" aria-label="${c.n}"><g class="bd"><path d="M12 124Q16 94 60 94Q104 94 108 124Z" fill="${c.sh}"/><rect x="52" y="88" width="16" height="14" fill="${c.sk}"/></g><g class="hd">${back}<circle cx="60" cy="62" r="32" fill="${c.sk}"/>${front}<g class="ey"><g class="bk"><circle cx="47" cy="63" r="3.5" fill="#1b1740"/><circle cx="73" cy="63" r="3.5" fill="#1b1740"/></g></g><g class="bw">${brow}</g><g class="mo">${mouth}</g>${ac}${extra}<path class="sw" d="M94 44Q98 52 94 56Q90 52 94 44Z" fill="#4cc9f0"/><path class="sw" d="M26 44Q30 52 26 56Q22 52 26 44Z" fill="#4cc9f0"/><circle class="pf" cx="96" cy="86" r="5" fill="#fff"/></g></svg>`;
+}
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gen(d,r,o){
+  o=o||{};const U=o.used||(o.used=new Set());
+  const P=a=>a[Math.floor(r()*a.length)],S=a=>a.map(x=>[r(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+  const fresh=a=>{let b=a.filter(x=>!U.has(x));if(b.length<3){a.forEach(x=>U.delete(x));b=a}return S(b)};
+  const c=P(CAST.filter(x=>x.n!=o.lc)),it=P(ITEMS.filter(x=>x!=o.li)),lie=r()<.5,f=s=>s.replace(/{it}/g,it).replace(/{loc}/g,LOC[c.n][0]).replace(/{ev}/g,LOC[c.n][1]);
+  const L=LOC[c.n],hb=o.tend?HAB[c.n]:null;
+  const sup=S((lie?BL:BT).filter(x=>x.id!=hb)).slice(0,[0,2,2,2,3,3,3][d]),her=S((lie?BT:BL).filter(x=>x.id!=hb)).slice(0,[0,0,1,1,1,2,2][d]);
+  const fp=fresh(lie?FL:FT).slice(0,2),np=fresh(NO),fs=fp.map(f),ns=np.slice(0,2).map(f);
+  U.add(fp[0]);U.add(np[0]);U.add(np[1]);o.lc=c.n;o.li=it;
+  let cl;
+  if(d==6)cl=[{t:ns[0],k:"noise"},{t:ns[1],k:"noise"},{t:"They showed this tell: "+sup[0].t.toLowerCase(),k:"sup"},{t:fs[0],k:"fact"},{t:"They showed this tell: "+sup[1].t.toLowerCase(),k:"sup"},{t:fs[1],k:"fact"}];
+  else if(d<=2)cl=S([{t:fs[0],k:"fact"},{t:ns[0],k:"noise"}]);
+  else cl=[{t:ns[0],k:"noise"},...(d>=4?[{t:ns[1],k:"noise"}]:[])];
+  const base=hb?[{...[...BL,...BT].find(x=>x.id==hb),k:"base"}]:[];
+  const tells=S([...sup.map(x=>({...x,k:"sup"})),...her.map(x=>({...x,k:"her"})),...base]);
+  const one=x=>[x.id],grp=a=>a.length>1?[a.slice(0,2).map(x=>x.id),...a.slice(2).map(one)]:a.map(one);
+  let mom;
+  if(d<=2)mom=tells.filter(x=>x.k!="base").map(one);
+  else{const nv=lie?grp(sup):her.map(one),cm=grp(lie?her:sup);mom=S([...nv,...cm]).flatMap(m=>[m,[]])}
+  return {c,d,lie,it,cl,tells,mom,hb,habit:hb?c.n+" "+HB[hb]:"",a:lie?0:1,setup:P(ST)(it,L[0],L[1])+" You ask your "+c.role+", "+c.n+".",claim:P(CL)(it,L[0],L[1]),
+    why:(lie?"Caught. ":"They’re honest. ")+"They showed "+sup.length+" "+(lie?"nervous":"honest-looking")+" tells and "+her.length+" misleading one"+(her.length==1?"":"s")+(hb?", plus their usual habit, which doesn’t count":"")+(d>=3?(lie?". Their nervous tells hit together, and that cluster is the giveaway.":". Their nervous tells only showed up alone, and a lone twitch means nothing."):". Go with the pattern.")};
+}
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const COST={endless:[5,10],daily:[20,30]};
+let G;
+function show(id){["home","play","end"].forEach(s=>$(s).classList.toggle("hide",s!==id))}
+function home(){
+  show("home");clearInterval(CT);clearTimeout(G&&G.tt);$("tend").checked=store.get("lon_tend")=="1";
+  $("cast").innerHTML=CAST.map(c=>"<div>"+avatar(c)+c.n+"</div>").join("");
+  const b=store.get("lon_best"),xb=store.get("lon_xbest");$("best").textContent=(b?"Your endless best: "+b+" points. ":"")+(xb?"Extreme best: "+xb+" points.":"");
+  let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}
+  $("dly").textContent=dd&&dd.date===today()?"Daily case: done ("+dd.score+"/100)":"Daily case: super hard";
+}
+function start(mode){
+  G={mode,lives:mode=="daily"||mode=="extreme"?1:3,score:mode=="daily"?100:0,streak:0,best:0,round:0,right:0,total:0};
+  if(mode=="daily"){const s=today().split("-").join("");G.q=gen(6,rng(+s))}else{G.o={used:new Set(),tend:store.get("lon_tend")=="1"};G.q=gen(mode=="extreme"?5:1,Math.random,G.o)}
+  show("play");render();
+}
+let CT;
+function cycle(m,hb,fast){clearInterval(CT);let i=0;const st=fast?Math.floor(8000/m.length):2600;const el=$("face"),go=()=>{el.dataset.t=(hb?hb+" ":"")+m[i++%m.length].join(" ")};go();CT=setInterval(go,st)}
+function render(){
+  const q=G.q,m=G.mode,dl=m=="daily";G.answered=false;G.rev=0;
+  $("lvl").textContent=dl?"Daily case":m=="extreme"?"Extreme":"Level "+q.d+": "+LV[q.d];$("lvl").className="badge"+(dl?" d":m=="extreme"?" x":"");
+  upd();
+  $("face").className="char";$("face").innerHTML=avatar(q.c);
+  $("name").textContent=q.c.n;$("role").textContent="Your "+q.c.role;
+  $("prop").textContent=ICON[q.it];$("prop").className="prop";$("scn").innerHTML=bgSvg(q.c.n);$("hab").textContent=q.hb?"Known habit: "+q.habit+", so it doesn’t count as a tell.":"";$("hab").classList.toggle("hide",!q.hb);
+  $("setup").textContent=q.setup+(dl?" All 6 hints are true, but each one you reveal costs 15 points.":"");
+  $("claim").textContent=q.claim;
+  $("clues").innerHTML=dl?"":q.cl.map(c=>"<li>"+c.t+"</li>").join("");
+  $("h1").textContent="Reveal a true hint (6 left, −15)";$("h1").disabled=false;
+  $("pick").classList.remove("hide");$("hints").classList.toggle("hide",!dl);
+  $("reveal").classList.add("hide");$("next").classList.add("hide");
+  cycle(q.mom,q.hb,m=="extreme");$("face").style.setProperty("--a",m=="extreme"?.45:[1,1,.8,.55,.4,.3,.3][q.d]);clearTimeout(G.tt);$("tmr").classList.toggle("hide",m!="extreme");if(m=="extreme"){const b=$("tbar");b.style.transition="none";b.style.width="100%";void b.offsetWidth;b.style.transition="width 10s linear";b.style.width="0%";G.t0=Date.now();G.tt=setTimeout(()=>pick(-1),10000)}$("nt").textContent=m=="extreme"?"Extreme: you have 10 seconds. Every tell shows up in the first 8.":q.d>=3?"Subtle now. One tell alone means little, so watch for patterns.":"Watch their body language. Everything they do is a tell, but not every tell is a lie.";
+}
+function upd(){
+  $("score").textContent=G.score+" pts"+(G.streak>1?" · x"+G.streak:"");
+  $("hearts").innerHTML=G.mode=="daily"?"":(G.mode=="extreme"?[0]:[0,1,2]).map(i=>i<G.lives?"♥":"<i>♥</i>").join("");
+}
+function hint(){
+  if(G.mode!="daily"||G.answered||G.rev>=6)return;
+  const c=G.q.cl[G.rev++];G.score=Math.max(0,G.score-15);
+  $("clues").insertAdjacentHTML("beforeend","<li>Hint "+G.rev+": "+c.t+"</li>");
+  $("h1").textContent=G.rev>=6?"All hints used":"Reveal a true hint ("+(6-G.rev)+" left, −15)";$("h1").disabled=G.rev>=6;upd();
+}
+function pick(v){
+  if(G.answered)return;G.answered=true;G.total++;
+  const q=G.q,ok=v===q.a,daily=G.mode=="daily",xt=G.mode=="extreme";
+  let left=0;if(xt){clearTimeout(G.tt);left=Math.max(0,10-(Date.now()-G.t0)/1000);const b=$("tbar"),w=getComputedStyle(b).width;b.style.transition="none";b.style.width=w}
+  if(ok){G.right++;G.streak++;G.best=Math.max(G.best,G.streak);if(xt)G.score+=50+Math.round(left*3)+Math.max(0,G.streak-1)*5;else if(!daily)G.score+=10*q.d+Math.max(0,G.streak-1)*2}
+  else{G.streak=0;G.lives--;if(daily)G.score=0}
+  upd();clearInterval(CT);
+  $("face").dataset.t="";$("face").innerHTML=avatar(q.c,q.lie?"l":"t");
+  $("prop").className="prop "+(q.lie?"caught":"safe");
+  document.querySelectorAll("#clues li").forEach((li,i)=>{
+    const k=q.cl[i].k,t={fact:"Key clue",sup:"Real tell",noise:"Noise"}[k];
+    li.insertAdjacentHTML("beforeend",'<span class="tag '+k+'">'+t+"</span>");
+  });
+  $("hints").classList.add("hide");$("pick").classList.add("hide");
+  const tl=q.tells.map(x=>"<li>"+x.t+'<span class="tag '+(x.k=="sup"?"fact":"")+'">'+({sup:"Real tell",her:"Misleading",base:"Usual habit, ignore"}[x.k])+"</span></li>").join("");
+  $("reveal").classList.remove("hide");
+  $("reveal").innerHTML=(ok?'<b class="ok">Correct.</b> ':'<b class="no">'+(v<0?"Time’s up.":"Nope.")+"</b> ")+"It was a <b>"+(q.lie?"lie":"truth")+"</b>. "+q.why+'<ul class="clues">'+tl+"</ul>";
+  $("next").textContent=(daily||G.lives<1)?"See results":"Next case";
+  $("next").classList.remove("hide");$("next").focus();
+}
+function next(){
+  if(G.mode=="daily"||G.lives<1)return finish();
+  G.round++;G.q=gen(G.mode=="extreme"?5:Math.min(5,1+Math.floor(G.round/3)),Math.random,G.o);render();
+}
+function finish(){
+  show("end");clearInterval(CT);clearTimeout(G.tt);const d=G.mode=="daily",p=G.right/G.total;
+  $("fs").textContent=G.score;$("fc").textContent=G.right+"/"+G.total;$("fb").textContent=G.best;
+  $("share").classList.toggle("hide",!d);
+  if(d){
+    $("rank").textContent=G.score>=100?"Flawless":G.score>0?"Case closed":"Fooled this time";
+    $("verdict").textContent=G.score>0?"You solved today’s daily case and kept "+G.score+" of 100 points. A fresh case drops tomorrow.":"The daily case got you. Tomorrow’s is a new one.";
+    store.set("lon_daily",JSON.stringify({date:today(),score:G.score}));
+  }else{
+    $("rank").textContent=G.mode=="extreme"?(G.right>=10?"Locked in":G.right>=5?"Quick eyes":G.right>=2?"Warming up":"Too slow"):G.right>=15?"Human lie detector":G.right>=8?"Suspiciously sharp":G.right>=4?"Decent instincts":"Easy to fool";
+    $("verdict").textContent="You survived "+G.total+" cases. Remember: nervous people can be honest, and calm people can lie. Go with the pattern of tells.";
+    if(G.mode=="extreme")$("verdict").textContent="You cleared "+G.right+" extreme case"+(G.right==1?"":"s")+" before it caught you. Every tell shows inside 8 seconds, so if you’re locked in there’s time to spare.";
+    const bk=G.mode=="extreme"?"lon_xbest":"lon_best";if(G.score>(+store.get(bk)||0))store.set(bk,G.score);
+  }
+}
+$("endless").onclick=()=>start("endless");$("xbtn").onclick=()=>start("extreme");
+$("dly").onclick=()=>start("daily");
+$("next").onclick=next;$("menu").onclick=home;
+$("h1").onclick=hint;$("tend").onchange=e=>store.set("lon_tend",e.target.checked?"1":"0");
+$("share").onclick=()=>{const t="Lie or Nah? Daily "+today()+": "+G.score+"/100";try{navigator.clipboard.writeText(t);$("share").textContent="Copied"}catch(e){$("share").textContent=t}};
+document.querySelectorAll("#pick button").forEach(b=>b.onclick=()=>pick(+b.dataset.a));
+home();
+</script>
+</body>
+</html>
