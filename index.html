@@ -114,6 +114,7 @@ li.dim{opacity:.4;text-decoration:line-through}
   <button class="go" id="endless">Play endless</button>
   <button class="go daily" id="dly">Daily case</button>
   <label class="tog"><input type="checkbox" id="tend"><span>Tendencies (endless and extreme): every character has a habit that doesn’t count as a tell</span></label>
+  <p class="mut cdp"></p>
   <p class="mut" id="best"></p>
   <div class="cast" id="cast"></div>
   <button class="xtreme" id="xbtn">Extreme mode</button>
@@ -151,6 +152,7 @@ li.dim{opacity:.4;text-decoration:line-through}
   <h2 id="rank"></h2>
   <p id="verdict"></p>
   <div class="stats"><div><strong id="fs"></strong>points</div><div><strong id="fc"></strong>correct</div><div><strong id="fb"></strong>best streak</div></div>
+  <p class="mut cdp hide" id="cde"></p>
   <button class="go daily hide" id="share">Copy result</button>
   <button class="go" id="menu">Back to menu</button>
 </section>
@@ -221,11 +223,11 @@ function gen(d,r,o){
   const fresh=a=>{let b=a.filter(x=>!U.has(x));if(b.length<3){a.forEach(x=>U.delete(x));b=a}return S(b)};
   const c=P(CAST.filter(x=>x.n!=o.lc)),it=P(ITEMS.filter(x=>x!=o.li)),lie=r()<.5,f=s=>s.replace(/{it}/g,it).replace(/{loc}/g,LOC[c.n][0]).replace(/{ev}/g,LOC[c.n][1]);
   const L=LOC[c.n],hb=o.tend?HAB[c.n]:null;
-  const sup=S((lie?BL:BT).filter(x=>x.id!=hb)).slice(0,[0,2,2,2,3,3,3][d]),her=S((lie?BT:BL).filter(x=>x.id!=hb)).slice(0,[0,0,1,1,1,2,2][d]);
+  const sup=S((lie?BL:BT).filter(x=>x.id!=hb)).slice(0,[0,2,2,2,3,3,1][d]),her=S((lie?BT:BL).filter(x=>x.id!=hb)).slice(0,[0,0,1,1,1,2,1][d]);
   const fp=fresh(lie?FL:FT).slice(0,2),np=fresh(NO),fs=fp.map(f),ns=np.slice(0,2).map(f);
   U.add(fp[0]);U.add(np[0]);U.add(np[1]);o.lc=c.n;o.li=it;
   let cl;
-  if(d==6)cl=[{t:ns[0],k:"noise"},{t:ns[1],k:"noise"},{t:"They showed this tell: "+sup[0].t.toLowerCase(),k:"sup"},{t:fs[0],k:"fact"},{t:"They showed this tell: "+sup[1].t.toLowerCase(),k:"sup"},{t:fs[1],k:"fact"}];
+  if(d==6)cl=[{t:ns[0],k:"noise"},{t:ns[1],k:"noise"},{t:"They showed this tell: "+sup[0].t.toLowerCase(),k:"sup"},{t:fs[0],k:"fact"},{t:"They also showed this tell: "+her[0].t.toLowerCase(),k:"her"},{t:fs[1],k:"fact"}];
   else if(d<=2)cl=S([{t:fs[0],k:"fact"},{t:ns[0],k:"noise"}]);
   else cl=[{t:ns[0],k:"noise"},...(d>=4?[{t:ns[1],k:"noise"}]:[])];
   const base=hb?[{...[...BL,...BT].find(x=>x.id==hb),k:"base"}]:[];
@@ -235,9 +237,9 @@ function gen(d,r,o){
   if(d<=2)mom=tells.filter(x=>x.k!="base").map(one);
   else{const nv=lie?grp(sup):her.map(one),cm=grp(lie?her:sup);mom=S([...nv,...cm]).flatMap(m=>[m,[]])}
   return {c,d,lie,it,cl,tells,mom,hb,habit:hb?c.n+" "+HB[hb]:"",a:lie?0:1,setup:P(ST)(it,L[0],L[1])+" You ask your "+c.role+", "+c.n+".",claim:P(CL)(it,L[0],L[1]),
-    why:(lie?"Caught. ":"They’re honest. ")+"They showed "+sup.length+" "+(lie?"nervous":"honest-looking")+" tells and "+her.length+" misleading one"+(her.length==1?"":"s")+(hb?", plus their usual habit, which doesn’t count":"")+(d>=3?(lie?". Their nervous tells hit together, and that cluster is the giveaway.":". Their nervous tells only showed up alone, and a lone twitch means nothing."):". Go with the pattern.")};
+    why:(lie?"Caught. ":"They’re honest. ")+"They showed "+sup.length+" "+(lie?"nervous":"honest-looking")+" tells and "+her.length+" misleading one"+(her.length==1?"":"s")+(hb?", plus their usual habit, which doesn’t count":"")+(d==6?". There were barely any tells today, so the clues decided it.":d>=3?(lie?". Their nervous tells hit together, and that cluster is the giveaway.":". Their nervous tells only showed up alone, and a lone twitch means nothing."):". Go with the pattern.")};
 }
-const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const today=()=>new Date().toLocaleDateString("en-CA",{timeZone:"America/New_York"});
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const COST={endless:[5,10],daily:[20,30]};
 let G;
@@ -250,6 +252,7 @@ function home(){
   $("dly").textContent=dd&&dd.date===today()?"Daily case: done ("+dd.score+"/100)":"Daily case: super hard";
 }
 function start(mode){
+  if(mode=="daily"){let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}if(dd&&dd.date===today()){G={mode,lives:0,score:dd.score,streak:0,best:0,round:0,right:dd.score>0?1:0,total:1};return finish()}}
   G={mode,lives:mode=="daily"||mode=="extreme"?1:3,score:mode=="daily"?100:0,streak:0,best:0,round:0,right:0,total:0};
   if(mode=="daily"){const s=today().split("-").join("");G.q=gen(6,rng(+s))}else{G.o={used:new Set(),tend:store.get("lon_tend")=="1"};G.q=gen(mode=="extreme"?5:1,Math.random,G.o)}
   show("play");render();
@@ -269,7 +272,7 @@ function render(){
   $("h1").textContent="Reveal a true hint (6 left, −15)";$("h1").disabled=false;
   $("pick").classList.remove("hide");$("hints").classList.toggle("hide",!dl);
   $("reveal").classList.add("hide");$("next").classList.add("hide");
-  cycle(q.mom,q.hb,m=="extreme");$("face").style.setProperty("--a",m=="extreme"?.45:[1,1,.8,.55,.4,.3,.3][q.d]);clearTimeout(G.tt);$("tmr").classList.toggle("hide",m!="extreme");if(m=="extreme"){const b=$("tbar");b.style.transition="none";b.style.width="100%";void b.offsetWidth;b.style.transition="width 10s linear";b.style.width="0%";G.t0=Date.now();G.tt=setTimeout(()=>pick(-1),10000)}$("nt").textContent=m=="extreme"?"Extreme: you have 10 seconds. Every tell shows up in the first 8.":q.d>=3?"Subtle now. One tell alone means little, so watch for patterns.":"Watch their body language. Everything they do is a tell, but not every tell is a lie.";
+  cycle(q.mom,q.hb,m=="extreme");$("face").style.setProperty("--a",m=="extreme"?.45:[1,1,.8,.55,.4,.3,.3][q.d]);clearTimeout(G.tt);$("tmr").classList.toggle("hide",m!="extreme");if(m=="extreme"){const b=$("tbar");b.style.transition="none";b.style.width="100%";void b.offsetWidth;b.style.transition="width 10s linear";b.style.width="0%";G.t0=Date.now();G.tt=setTimeout(()=>pick(-1),10000)}$("nt").textContent=dl?"Today’s tells are faint. Lean on the clues.":m=="extreme"?"Extreme: you have 10 seconds. Every tell shows up in the first 8.":q.d>=3?"Subtle now. One tell alone means little, so watch for patterns.":"Watch their body language. Everything they do is a tell, but not every tell is a lie.";
 }
 function upd(){
   $("score").textContent=G.score+" pts"+(G.streak>1?" · x"+G.streak:"");
@@ -291,7 +294,7 @@ function pick(v){
   $("face").dataset.t="";$("face").innerHTML=avatar(q.c,q.lie?"l":"t");
   $("prop").className="prop "+(q.lie?"caught":"safe");
   document.querySelectorAll("#clues li").forEach((li,i)=>{
-    const k=q.cl[i].k,t={fact:"Key clue",sup:"Real tell",noise:"Noise"}[k];
+    const k=q.cl[i].k,t={fact:"Key clue",sup:"Real tell",her:"Misleading tell",noise:"Noise"}[k];
     li.insertAdjacentHTML("beforeend",'<span class="tag '+k+'">'+t+"</span>");
   });
   $("hints").classList.add("hide");$("pick").classList.add("hide");
@@ -308,7 +311,7 @@ function next(){
 function finish(){
   show("end");clearInterval(CT);clearTimeout(G.tt);const d=G.mode=="daily",p=G.right/G.total;
   $("fs").textContent=G.score;$("fc").textContent=G.right+"/"+G.total;$("fb").textContent=G.best;
-  $("share").classList.toggle("hide",!d);
+  $("share").classList.toggle("hide",!d);$("cde").classList.toggle("hide",!d);
   if(d){
     $("rank").textContent=G.score>=100?"Flawless":G.score>0?"Case closed":"Fooled this time";
     $("verdict").textContent=G.score>0?"You solved today’s daily case and kept "+G.score+" of 100 points. A fresh case drops tomorrow.":"The daily case got you. Tomorrow’s is a new one.";
@@ -326,6 +329,11 @@ $("next").onclick=next;$("menu").onclick=home;
 $("h1").onclick=hint;$("tend").onchange=e=>store.set("lon_tend",e.target.checked?"1":"0");
 $("share").onclick=()=>{const t="Lie or Nah? Daily "+today()+": "+G.score+"/100";try{navigator.clipboard.writeText(t);$("share").textContent="Copied"}catch(e){$("share").textContent=t}};
 document.querySelectorAll("#pick button").forEach(b=>b.onclick=()=>pick(+b.dataset.a));
+const pad=n=>String(n).padStart(2,"0");
+function left(){const p=new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"numeric",second:"numeric",hourCycle:"h23"}).formatToParts(new Date()),g=t=>+p.find(x=>x.type==t).value;return 86400-(g("hour")*3600+g("minute")*60+g("second"))}
+let DK=today();
+function tick(){const t=left();document.querySelectorAll(".cdp").forEach(e=>e.textContent="Next daily case in "+pad(Math.floor(t/3600))+":"+pad(Math.floor(t%3600/60))+":"+pad(t%60)+" (resets 12am ET / 9pm PT)");if(today()!==DK){DK=today();if(!$("home").classList.contains("hide"))home()}}
+tick();setInterval(tick,1000);
 home();
 </script>
 </body>
