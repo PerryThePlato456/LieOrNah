@@ -104,6 +104,12 @@ li.dim{opacity:.4;text-decoration:line-through}
 .badge.x{background:#e11d48;color:#fff}
 .tmr{height:10px;border-radius:5px;background:var(--soft);overflow:hidden;margin-top:8px}
 .tmr i{display:block;height:100%;width:100%;background:#e11d48}
+.adm{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.6);overflow:auto;padding:16px}
+.admc{background:var(--card);border-radius:20px;padding:16px;max-width:520px;margin:0 auto}
+.admc h3{margin:18px 0 4px}
+.admc input,.admc textarea,.admc select{width:100%;font:inherit;padding:10px;border-radius:10px;border:2px solid var(--soft);background:var(--bg);color:var(--ink)}
+.admc .lab{display:block;font-size:.8rem;font-weight:600;color:var(--mut);margin-top:10px}
+.admc li button{padding:4px 10px;margin-left:8px;background:var(--soft)}
 </style>
 </head>
 <body>
@@ -158,6 +164,27 @@ li.dim{opacity:.4;text-decoration:line-through}
 </section>
 </main>
 
+<div class="adm hide" id="adm" role="dialog" aria-modal="true" aria-label="Admin panel">
+ <div class="admc">
+  <div class="top"><h2>Admin</h2><button id="ax">Close</button></div>
+  <p class="mut" id="am"></p><p id="amsg" aria-live="polite" style="font-weight:600"></p>
+  <h3>Daily</h3><p class="mut" id="ads"></p>
+  <button class="go" id="arst">Reset today’s daily (new question, same timer)</button>
+  <h3>Special scenario</h3>
+  <label class="lab">Character</label><select id="ac"></select>
+  <label class="lab">Item (🧴 icon list: fragrance, AirPods, phone, TV remote, Stanley cup, sneakers, hoodie, game controller, lip gloss, Labubu; anything else gets 📦)</label><input id="ai" placeholder="AirPods">
+  <label class="lab">Setup (what happened)</label><textarea id="as" rows="2" placeholder="Your AirPods vanished after the group project. You ask your cousin, Zed."></textarea>
+  <label class="lab">What they say</label><input id="acl" placeholder="“I swear I never saw them.”">
+  <label class="lab">Answer</label><select id="av"><option value="lie">Lie</option><option value="truth">Truth</option></select>
+  <label class="lab">Clues (one per line; in the daily these become the true hints)</label><textarea id="acu" rows="3"></textarea>
+  <label class="lab">Tells: nervous = sweat, dart, talk, twitch, jig. Calm = steady, shrug, annoy, nod, tilt. Use + to combine, commas to separate moments</label><input id="at" placeholder="dart+twitch, nod">
+  <label class="lab">Explanation after the answer (optional)</label><input id="aw">
+  <button class="go" id="atest">Test it now</button>
+  <button class="go" id="aadd">Add to endless pool</button>
+  <button class="go daily" id="adaily">Set as today’s daily</button>
+  <h3>Pool</h3><ul class="clues" id="alist"></ul>
+ </div>
+</div>
 <script>
 const $=id=>document.getElementById(id);
 const CAST=[
@@ -249,12 +276,12 @@ function home(){
   $("cast").innerHTML=CAST.map(c=>"<div>"+avatar(c)+c.n+"</div>").join("");
   const b=store.get("lon_best"),xb=store.get("lon_xbest");$("best").textContent=(b?"Your endless best: "+b+" points. ":"")+(xb?"Extreme best: "+xb+" points.":"");
   let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}
-  $("dly").textContent=dd&&dd.date===today()?"Daily case: done ("+dd.score+"/100)":"Daily case: super hard";
+  $("dly").textContent=dd&&dd.date===today()&&(dd.salt||0)===salt()?"Daily case: done ("+dd.score+"/100)":"Daily case: super hard";
 }
 function start(mode){
-  if(mode=="daily"){let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}if(dd&&dd.date===today()){G={mode,lives:0,score:dd.score,streak:0,best:0,round:0,right:dd.score>0?1:0,total:1};return finish()}}
+  if(mode=="daily"){let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}if(dd&&dd.date===today()&&(dd.salt||0)===salt()){G={mode,lives:0,score:dd.score,streak:0,best:0,round:0,right:dd.score>0?1:0,total:1};return finish()}}
   G={mode,lives:mode=="daily"||mode=="extreme"?1:3,score:mode=="daily"?100:0,streak:0,best:0,round:0,right:0,total:0};
-  if(mode=="daily"){const s=today().split("-").join("");G.q=gen(6,rng(+s))}else{G.o={used:new Set(),tend:store.get("lon_tend")=="1"};G.q=gen(mode=="extreme"?5:1,Math.random,G.o)}
+  if(mode=="daily"){G.q=dailyQ()}else{G.o={used:new Set(),tend:store.get("lon_tend")=="1"};G.q=mk(mode=="extreme"?5:1)}
   show("play");render();
 }
 let CT;
@@ -265,11 +292,11 @@ function render(){
   upd();
   $("face").className="char";$("face").innerHTML=avatar(q.c);
   $("name").textContent=q.c.n;$("role").textContent="Your "+q.c.role;
-  $("prop").textContent=ICON[q.it];$("prop").className="prop";$("scn").innerHTML=bgSvg(q.c.n);$("hab").textContent=q.hb?"Known habit: "+q.habit+", so it doesn’t count as a tell.":"";$("hab").classList.toggle("hide",!q.hb);
-  $("setup").textContent=q.setup+(dl?" All 6 hints are true, but each one you reveal costs 15 points.":"");
+  $("prop").textContent=ICON[q.it]||"📦";$("prop").className="prop";$("scn").innerHTML=bgSvg(q.c.n);$("hab").textContent=q.hb?"Known habit: "+q.habit+", so it doesn’t count as a tell.":"";$("hab").classList.toggle("hide",!q.hb);
+  $("setup").textContent=q.setup+(dl?" All "+q.cl.length+" hints are true, but each one you reveal costs 15 points.":"");
   $("claim").textContent=q.claim;
-  $("clues").innerHTML=dl?"":q.cl.map(c=>"<li>"+c.t+"</li>").join("");
-  $("h1").textContent="Reveal a true hint (6 left, −15)";$("h1").disabled=false;
+  $("clues").innerHTML=dl?"":q.cl.map(c=>"<li>"+esc(c.t)+"</li>").join("");
+  $("h1").textContent="Reveal a true hint ("+q.cl.length+" left, −15)";$("h1").disabled=!q.cl.length;
   $("pick").classList.remove("hide");$("hints").classList.toggle("hide",!dl);
   $("reveal").classList.add("hide");$("next").classList.add("hide");
   cycle(q.mom,q.hb,m=="extreme");$("face").style.setProperty("--a",m=="extreme"?.45:[1,1,.8,.55,.4,.3,.3][q.d]);clearTimeout(G.tt);$("tmr").classList.toggle("hide",m!="extreme");if(m=="extreme"){const b=$("tbar");b.style.transition="none";b.style.width="100%";void b.offsetWidth;b.style.transition="width 10s linear";b.style.width="0%";G.t0=Date.now();G.tt=setTimeout(()=>pick(-1),10000)}$("nt").textContent=dl?"Today’s tells are faint. Lean on the clues.":m=="extreme"?"Extreme: you have 10 seconds. Every tell shows up in the first 8.":q.d>=3?"Subtle now. One tell alone means little, so watch for patterns.":"Watch their body language. Everything they do is a tell, but not every tell is a lie.";
@@ -279,10 +306,11 @@ function upd(){
   $("hearts").innerHTML=G.mode=="daily"?"":(G.mode=="extreme"?[0]:[0,1,2]).map(i=>i<G.lives?"♥":"<i>♥</i>").join("");
 }
 function hint(){
-  if(G.mode!="daily"||G.answered||G.rev>=6)return;
+  const n=G.q.cl.length;
+  if(G.mode!="daily"||G.answered||G.rev>=n)return;
   const c=G.q.cl[G.rev++];G.score=Math.max(0,G.score-15);
-  $("clues").insertAdjacentHTML("beforeend","<li>Hint "+G.rev+": "+c.t+"</li>");
-  $("h1").textContent=G.rev>=6?"All hints used":"Reveal a true hint ("+(6-G.rev)+" left, −15)";$("h1").disabled=G.rev>=6;upd();
+  $("clues").insertAdjacentHTML("beforeend","<li>Hint "+G.rev+": "+esc(c.t)+"</li>");
+  $("h1").textContent=G.rev>=n?"All hints used":"Reveal a true hint ("+(n-G.rev)+" left, −15)";$("h1").disabled=G.rev>=n;upd();
 }
 function pick(v){
   if(G.answered)return;G.answered=true;G.total++;
@@ -294,11 +322,11 @@ function pick(v){
   $("face").dataset.t="";$("face").innerHTML=avatar(q.c,q.lie?"l":"t");
   $("prop").className="prop "+(q.lie?"caught":"safe");
   document.querySelectorAll("#clues li").forEach((li,i)=>{
-    const k=q.cl[i].k,t={fact:"Key clue",sup:"Real tell",her:"Misleading tell",noise:"Noise"}[k];
+    const k=q.cl[i].k,t={fact:"Key clue",sup:"Real tell",her:"Misleading tell",noise:"Noise",custom:"Clue"}[k];
     li.insertAdjacentHTML("beforeend",'<span class="tag '+k+'">'+t+"</span>");
   });
   $("hints").classList.add("hide");$("pick").classList.add("hide");
-  const tl=q.tells.map(x=>"<li>"+x.t+'<span class="tag '+(x.k=="sup"?"fact":"")+'">'+({sup:"Real tell",her:"Misleading",base:"Usual habit, ignore"}[x.k])+"</span></li>").join("");
+  const tl=q.tells.map(x=>"<li>"+esc(x.t)+'<span class="tag '+(x.k=="sup"?"fact":"")+'">'+({sup:"Real tell",her:"Misleading",base:"Usual habit, ignore"}[x.k])+"</span></li>").join("");
   $("reveal").classList.remove("hide");
   $("reveal").innerHTML=(ok?'<b class="ok">Correct.</b> ':'<b class="no">'+(v<0?"Time’s up.":"Nope.")+"</b> ")+"It was a <b>"+(q.lie?"lie":"truth")+"</b>. "+q.why+'<ul class="clues">'+tl+"</ul>";
   $("next").textContent=(daily||G.lives<1)?"See results":"Next case";
@@ -306,7 +334,7 @@ function pick(v){
 }
 function next(){
   if(G.mode=="daily"||G.lives<1)return finish();
-  G.round++;G.q=gen(G.mode=="extreme"?5:Math.min(5,1+Math.floor(G.round/3)),Math.random,G.o);render();
+  G.round++;G.q=mk(G.mode=="extreme"?5:Math.min(5,1+Math.floor(G.round/3)));render();
 }
 function finish(){
   show("end");clearInterval(CT);clearTimeout(G.tt);const d=G.mode=="daily",p=G.right/G.total;
@@ -315,7 +343,7 @@ function finish(){
   if(d){
     $("rank").textContent=G.score>=100?"Flawless":G.score>0?"Case closed":"Fooled this time";
     $("verdict").textContent=G.score>0?"You solved today’s daily case and kept "+G.score+" of 100 points. A fresh case drops tomorrow.":"The daily case got you. Tomorrow’s is a new one.";
-    store.set("lon_daily",JSON.stringify({date:today(),score:G.score}));
+    store.set("lon_daily",JSON.stringify({date:today(),score:G.score,salt:salt()}));
   }else{
     $("rank").textContent=G.mode=="extreme"?(G.right>=10?"Locked in":G.right>=5?"Quick eyes":G.right>=2?"Warming up":"Too slow"):G.right>=15?"Human lie detector":G.right>=8?"Suspiciously sharp":G.right>=4?"Decent instincts":"Easy to fool";
     $("verdict").textContent="You survived "+G.total+" cases. Remember: nervous people can be honest, and calm people can lie. Go with the pattern of tells.";
@@ -329,6 +357,44 @@ $("next").onclick=next;$("menu").onclick=home;
 $("h1").onclick=hint;$("tend").onchange=e=>store.set("lon_tend",e.target.checked?"1":"0");
 $("share").onclick=()=>{const t="Lie or Nah? Daily "+today()+": "+G.score+"/100";try{navigator.clipboard.writeText(t);$("share").textContent="Copied"}catch(e){$("share").textContent=t}};
 document.querySelectorAll("#pick button").forEach(b=>b.onclick=()=>pick(+b.dataset.a));
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let AS={salt:0,saltDate:"",dailyOverride:null,specials:[]},DB=null,ISO=false;
+try{Object.assign(AS,JSON.parse(store.get("lon_st")||"{}"))}catch(e){}
+const salt=()=>AS.saltDate===today()?AS.salt:0;
+function dailyQ(){const ov=AS.dailyOverride;if(ov&&ov.date===today())return fromSpecial(ov.sc,6,{});return gen(6,rng(+today().split("-").join("")+salt()*7919))}
+function mk(d){const sp=AS.specials.filter(x=>!G.o.used.has("sp"+x.id));if(sp.length&&Math.random()<.3){const sc=sp[Math.floor(Math.random()*sp.length)];G.o.used.add("sp"+sc.id);return fromSpecial(sc,d,G.o)}return gen(d,Math.random,G.o)}
+function fromSpecial(sc,d,o){
+  const c=CAST.find(x=>x.n==sc.c)||CAST[0],lie=!!sc.lie,hb=o&&o.tend?HAB[c.n]:null,all=[...BL,...BT],nerv=new Set(BL.map(x=>x.id));
+  const mom=(sc.tells||"").split(",").map(g=>g.split("+").map(x=>x.trim()).filter(x=>all.some(a=>a.id==x))).filter(g=>g.length);
+  const tells=[...new Set(mom.flat())].map(id=>({...all.find(a=>a.id==id),k:nerv.has(id)==lie?"sup":"her"}));
+  if(hb)tells.push({...all.find(a=>a.id==hb),k:"base"});
+  return {c,d,lie,it:sc.it||"stuff",cl:(sc.clues||"").split("\n").map(t=>t.trim()).filter(Boolean).map(t=>({t,k:"custom"})),tells,mom:mom.length?mom.flatMap(m=>[m,[]]):[[]],hb,habit:hb?c.n+" "+HB[hb]:"",a:lie?0:1,setup:sc.setup||"",claim:sc.claim||"",why:(lie?"Caught. ":"They’re honest. ")+(sc.why||"")+" (special scenario)"};
+}
+function msg(t){$("amsg").textContent=t}
+function setST(d){Object.assign(AS,d);store.set("lon_st",JSON.stringify(AS))}
+function saveST(){store.set("lon_st",JSON.stringify(AS));if(DB)DB.doc("config/state").set(AS).then(()=>msg("Saved. Signed-in players will see it.")).catch(()=>msg("Saved on this device only. Only the owner can publish changes to everyone."));else msg("Saved on this device only.")}
+(async()=>{if(!window.claude)return;try{const u=await claude.use("user");ISO=u?await u.isOwner():false}catch(e){}
+try{DB=await claude.use("db");if(DB)DB.doc("config/state").onSnapshot(sn=>{if(sn.exists){setST(sn.data());if(!$("home").classList.contains("hide"))home();adm()}},()=>{})}catch(e){}})();
+function adm(){
+  $("am").textContent=ISO?"You’re the owner, so changes publish to everyone signed in.":"Changes here reach everyone only when the owner makes them.";
+  $("ads").textContent="Daily salt: "+salt()+(AS.dailyOverride&&AS.dailyOverride.date===today()?" (custom daily active)":"")+". The timer still resets at 12am ET.";
+  $("alist").innerHTML=AS.specials.length?AS.specials.map(x=>"<li>"+esc(x.c)+": "+esc((x.setup||"").slice(0,50))+'<button data-d="'+x.id+'">Delete</button></li>').join(""):"<li class=\"mut\">None yet</li>";
+}
+function readSc(){const v=i=>$(i).value.trim(),sc={id:Date.now(),c:$("ac").value,it:v("ai")||"stuff",setup:v("as"),claim:v("acl"),lie:$("av").value=="lie",clues:$("acu").value,tells:v("at"),why:v("aw")};if(!sc.setup||!sc.claim){msg("Add a setup and what they say first.");return null}return sc}
+function openAdm(){const a=$("ac");if(!a.options.length)a.innerHTML=CAST.map(c=>"<option>"+c.n+"</option>").join("");adm();msg("");$("adm").classList.remove("hide")}
+$("ax").onclick=()=>$("adm").classList.add("hide");
+$("arst").onclick=()=>{setST({salt:1+Math.floor(Math.random()*1e6),saltDate:today(),dailyOverride:null});saveST();adm();home()};
+$("aadd").onclick=()=>{const sc=readSc();if(!sc)return;AS.specials.push(sc);saveST();adm()};
+$("adaily").onclick=()=>{const sc=readSc();if(!sc)return;setST({dailyOverride:{date:today(),sc},salt:1+Math.floor(Math.random()*1e6),saltDate:today()});saveST();adm();home()};
+$("atest").onclick=()=>{const sc=readSc();if(!sc)return;G={mode:"endless",lives:3,score:0,streak:0,best:0,round:0,right:0,total:0,o:{used:new Set(),tend:false}};G.q=fromSpecial(sc,3,G.o);$("adm").classList.add("hide");show("play");render()};
+$("alist").onclick=e=>{const id=e.target.dataset.d;if(id){AS.specials=AS.specials.filter(x=>String(x.id)!==id);saveST();adm()}};
+let kb=null,kt=0;
+addEventListener("keydown",e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.key.length!=1)return;
+  if(kb===null){if(e.key.toLowerCase()=="k"){kb="";kt=Date.now()}return}
+  if(Date.now()-kt>10000){kb=null;return}
+  kb+=e.key;if(!"Blanks".startsWith(kb)){kb=null;return}
+  if(kb=="Blanks"){kb=null;openAdm()}});
+addEventListener("keydown",e=>{if(e.key=="Escape")$("adm").classList.add("hide")});
 const pad=n=>String(n).padStart(2,"0");
 function left(){const p=new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"numeric",second:"numeric",hourCycle:"h23"}).formatToParts(new Date()),g=t=>+p.find(x=>x.type==t).value;return 86400-(g("hour")*3600+g("minute")*60+g("second"))}
 let DK=today();
