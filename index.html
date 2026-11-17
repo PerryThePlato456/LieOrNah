@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Lie or Nah?</title>
+<title>Detectdle</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#e9e6ff;--ink:#1b1740;--card:#fff;--soft:#d8d3ff;--lie:#ff3d7f;--truth:#0f9d8a;--mut:#5a5680;--gold:#ffb703;
@@ -124,7 +124,7 @@ li.dim{opacity:.4;text-decoration:line-through}
 <body>
 <main>
 <section id="home">
-  <h1>Lie or Nah?</h1>
+  <h1>Detectdle</h1>
   <p>Someone you know says they didn’t take your stuff. Watch their body language, count the tells, and call it. The cases never run out.</p>
   <button class="go" id="endless">Play endless</button>
   <button class="go daily" id="dly">Daily case</button>
@@ -392,7 +392,7 @@ $("endless").onclick=()=>start("endless");$("xbtn").onclick=()=>start("extreme")
 $("dly").onclick=()=>start("daily");
 $("next").onclick=next;$("menu").onclick=home;
 $("h1").onclick=hint;$("tend").onchange=e=>store.set("lon_tend",e.target.checked?"1":"0");
-$("share").onclick=()=>{const t="Lie or Nah? Daily "+today()+": "+G.score+"/100";try{navigator.clipboard.writeText(t);$("share").textContent="Copied"}catch(e){$("share").textContent=t}};
+$("share").onclick=()=>{const t="Detectdle Daily "+today()+": "+G.score+"/100";try{navigator.clipboard.writeText(t);$("share").textContent="Copied"}catch(e){$("share").textContent=t}};
 document.querySelectorAll("#pick button").forEach(b=>b.onclick=()=>pick(+b.dataset.a));
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let AS={salt:0,saltDate:"",dailyOverride:null,specials:[]},DB=null,ISO=false;
