@@ -22,7 +22,7 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 button:disabled{opacity:.4;cursor:default}
 .go{background:var(--ink);color:var(--bg);width:100%;margin-top:12px;font-size:1.05rem}
 .daily{background:var(--gold);color:#2b1c00}
-.cast{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:22px 0 4px}
+.cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:8px;margin:22px 0 4px}
 .cast div{text-align:center;font-size:.72rem;font-weight:600}
 .cast svg{width:100%;height:auto;border-radius:50%;background:var(--soft);display:block;margin-bottom:2px}
 .top{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.95rem}
@@ -110,6 +110,15 @@ li.dim{opacity:.4;text-decoration:line-through}
 .admc input,.admc textarea,.admc select{width:100%;font:inherit;padding:10px;border-radius:10px;border:2px solid var(--soft);background:var(--bg);color:var(--ink)}
 .admc .lab{display:block;font-size:.8rem;font-weight:600;color:var(--mut);margin-top:10px}
 .admc li button{padding:4px 10px;margin-left:8px;background:var(--soft)}
+.ghost{background:var(--soft);color:var(--ink)}
+.mute{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:5;border-radius:50%;width:48px;height:48px;padding:0;background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.25);font-size:1.3rem}
+.char.say .mo{animation:sy .16s infinite alternate}
+.scene.shake{animation:scn .4s}
+#score.bump{animation:bm .3s}
+@keyframes sy{to{transform:scaleY(1.9)}}
+@keyframes scn{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+@keyframes bm{50%{transform:scale(1.25)}}
+@media (prefers-reduced-motion:reduce){.scene.shake,#score.bump,.char.say .mo{animation:none!important}}
 </style>
 </head>
 <body>
@@ -121,6 +130,8 @@ li.dim{opacity:.4;text-decoration:line-through}
   <button class="go daily" id="dly">Daily case</button>
   <label class="tog"><input type="checkbox" id="tend"><span>Tendencies (endless and extreme): every character has a habit that doesn’t count as a tell</span></label>
   <p class="mut cdp"></p>
+  <p class="mut" id="stk"></p>
+  <button class="go ghost" id="lbbtn">Leaderboard</button>
   <p class="mut" id="best"></p>
   <div class="cast" id="cast"></div>
   <button class="xtreme" id="xbtn">Extreme mode</button>
@@ -160,6 +171,7 @@ li.dim{opacity:.4;text-decoration:line-through}
   <div class="stats"><div><strong id="fs"></strong>points</div><div><strong id="fc"></strong>correct</div><div><strong id="fb"></strong>best streak</div></div>
   <p class="mut cdp hide" id="cde"></p>
   <button class="go daily hide" id="share">Copy result</button>
+  <button class="go ghost" id="lbbtn2">Leaderboard</button>
   <button class="go" id="menu">Back to menu</button>
 </section>
 </main>
@@ -183,6 +195,16 @@ li.dim{opacity:.4;text-decoration:line-through}
   <button class="go" id="aadd">Add to endless pool</button>
   <button class="go daily" id="adaily">Set as today’s daily</button>
   <h3>Pool</h3><ul class="clues" id="alist"></ul>
+ </div>
+</div>
+<button class="mute" id="mute" aria-label="Toggle sound">🔊</button>
+<div class="adm hide" id="lbp" role="dialog" aria-modal="true" aria-label="Leaderboard">
+ <div class="admc">
+  <div class="top"><h2>Leaderboard</h2><button id="lbx">Close</button></div>
+  <div class="hints"><button id="lbt">Today’s daily</button><button id="lbs">Streaks</button></div>
+  <ul class="clues" id="lbl"></ul><p class="mut" id="lbm" aria-live="polite"></p>
+  <label class="lab">Nickname (shown to everyone, 16 characters max)</label><input id="lbn" maxlength="16">
+  <button class="go" id="lbsv">Save and post my score</button>
  </div>
 </div>
 <script>
@@ -228,6 +250,18 @@ const ST=[(it,l,e)=>"You left your "+it+" out at "+l+" during "+e+". After that,
 const LOC={Pixie:["Pixie’s bedroom","a sleepover"],Dex:["the gaming den","game night"],Marlo:["the kitchen","Sunday dinner"],Gus:["the workshop","a weekend project"],Zed:["the skatepark","a skate session"],Juno:["the mall","a shopping trip"],Kai:["the apartment","a study session"],Ray:["the backyard","a BBQ"],"Nana Pea":["the living room","tea time"],Bo:["the school hallway","lunch break"]};
 const LV=["","Easy","Sneaky","Tricky","Expert","Mastermind","Daily case"];
 
+CAST.push({n:"Tia",role:"aunt",sk:"#c68642",hr:"#7b2d26",hs:1,sh:"#00b4d8",ac:"e"},{n:"Leo",role:"stepbrother",sk:"#f1c9a5",hr:"#ff7b00",hs:0,sh:"#2b9348",ac:"c"},{n:"Mei",role:"neighbor",sk:"#f6d2b5",hr:"#111",hs:1,sh:"#ffd166",ac:"g"},{n:"Dre",role:"coach",sk:"#7a4a2a",hr:"#111",hs:3,sh:"#e63946",ac:"h"},{n:"Hank",role:"grandpa",sk:"#e0ac86",hr:"#e5e5ee",hs:0,sh:"#6c757d",ac:"g"},{n:"Ivy",role:"teammate",sk:"#8d5a3b",hr:"#2d6a4f",hs:2,sh:"#f77f00",ac:"e"});
+ITEMS.push("Apple Watch","Crocs","Ray-Bans","Pokémon cards","Switch","concert tickets","Polaroid camera","backpack","bracelet","Hydro Flask");
+Object.assign(ICON,{"Apple Watch":"⌚","Crocs":"🩴","Ray-Bans":"🕶️","Pokémon cards":"🃏","Switch":"🕹️","concert tickets":"🎟️","Polaroid camera":"📷","backpack":"🎒","bracelet":"📿","Hydro Flask":"🧃"});
+Object.assign(HAB,{Tia:"talk",Leo:"jig",Mei:"tilt",Dre:"annoy",Hank:"nod",Ivy:"twitch"});
+Object.assign(LOC,{Tia:["the salon","a pamper day"],Leo:["the arcade","a birthday party"],Mei:["the garden","a block party"],Dre:["the gym","practice"],Hank:["the fishing dock","a fishing trip"],Ivy:["the café","a study date"]});
+Object.assign(BG,{
+Tia:["#b8e6e0","#e6dfd6",'<ellipse cx="26" cy="34" rx="14" ry="19" fill="#fff"/><ellipse cx="26" cy="34" rx="11.5" ry="16.5" fill="#bfe9ff"/>'+R(10,56,32,14,"#e63946",5)+R(14,46,24,14,"#c1272d",5)+R(20,70,3,6,"#555")+R(30,70,3,6,"#555")+R(56,22,40,2,"#8a6a45")+[60,68,76,84,90].map((x,i)=>R(x,12+(i%2)*2,5,10-(i%2)*2,["#ff8fab","#7fd6c2","#ffd166","#a0c4ff","#caffbf"][i],1)).join("")+R(60,44,16,6,"#444",2)+R(84,56,8,12,"#8a5a3a",1)+C(88,50,8,"#3fa66b")],
+Leo:["#10243a","#2b2b4a",R(30,6,40,8,"#ff3d7f",4,.9)+[4,30,56,78].map((x,i)=>R(x,18,18,50,"#3a3f8f",2)+R(x+2,22,14,16,["#06d6a0","#ffd166","#ff3d7f","#6ee7ff"][i],1)+R(x+4,44,10,3,"#222")+C(x+6,52,1.5,"#f00")+C(x+11,52,1.5,"#0f0")).join("")+C(14,3,1.5,"#fff")+C(50,3,1.5,"#fff")+C(86,3,1.5,"#fff")],
+Mei:["#bfe9ff","#6dbb6a",C(84,14,8,"#ffd54a")+[8,22,36,50,64,78].map((x,i)=>PA(`M${x} 8L${x+7} 8L${x+3.5} 15Z`,["#ff4f8b","#ffd166","#06d6a0","#3b82f6"][i%4])).join("")+C(16,26,5,"#ff4f8b")+C(26,22,5,"#ffd166")+C(21,31,5,"#6ee7ff")+[0,1,2,3,4,5,6,7,8,9].map(i=>R(i*10+1,46,7,28,"#fff",1)).join("")+R(0,54,100,2,"#eee")+R(0,66,100,2,"#eee")+[10,30,62,88].map((x,i)=>C(x,70,2.5,["#ff4f8b","#ffd166","#fff","#ff8fab"][i])+R(x-.3,72,.6,4,"#2e8b57")).join("")],
+Dre:["#e9edf2","#c9a36a",R(36,8,30,22,"#333",1)+R(38,10,26,18,"#fff")+R(47,19,8,6,"#e63946")+R(44,30,14,1.5,"#ff6b35")+PA("M45 31.5L48 40L54 40L57 31.5Z","#fff",.5)+R(0,46,36,6,"#8d99ae")+R(0,52,36,6,"#6c7a96")+R(0,58,36,6,"#4f5d79")+R(70,10,24,12,"#111",1)+R(72,12,8,8,"#ffd166")+R(84,12,8,8,"#ffd166")+'<circle cx="50" cy="94" r="12" fill="none" stroke="#fff" stroke-width=".8"/>'],
+Hank:["#ffd6a5","#8a6a45",C(26,26,10,"#ff8c42")+R(0,46,100,28,"#4aa3c7")+R(0,46,100,2,"#6fc3df")+PA("M52 56Q64 64 82 56L78 62Q66 68 56 62Z","#5e3d22")+R(66,40,1,16,"#333")+PA("M67 40L78 54L67 54Z","#fff")+R(8,56,4,20,"#5e3d22")+R(88,56,4,20,"#5e3d22")+'<path d="M70 70L92 40" stroke="#333" stroke-width=".8" fill="none"/>'],
+Ivy:["#f1e0cf","#6b4f3a",R(6,10,30,24,"#2b2b2b",1)+[14,20,26].map(y=>R(10,y,22,1.2,"#fff",0,.8)).join("")+[50,70,90].map(x=>R(x,0,.6,12,"#333")+PA(`M${x-5} 18L${x+5} 18L${x+2} 12L${x-2} 12Z`,"#ffb703")).join("")+WIN(46,24,28,24,"#bde0ff")+R(0,56,100,18,"#8a5a3a")+R(0,54,100,3,"#d9b779")+R(70,44,14,10,"#aaa",1)+R(72,40,10,4,"#777",1)+[10,18,26].map(x=>R(x,48,5,6,"#fff",1)).join("")]});
 function avatar(c,m){
   const o=`stroke="#1b1740" stroke-width="3" stroke-linecap="round" fill="none"`;
   let back="",front="",ac="",brow=`<path d="M40 52Q47 49 55 52M65 52Q73 49 81 52" ${o} stroke-width="2.5"/>`,mouth=`<path d="M50 80Q60 84 70 80" ${o}/>`,extra="";
@@ -272,7 +306,7 @@ const COST={endless:[5,10],daily:[20,30]};
 let G;
 function show(id){["home","play","end"].forEach(s=>$(s).classList.toggle("hide",s!==id))}
 function home(){
-  show("home");clearInterval(CT);clearTimeout(G&&G.tt);$("tend").checked=store.get("lon_tend")=="1";
+  show("home");clearInterval(CT);clearTimeout(G&&G.tt);clearInterval(G&&G.tk);const sk=streak();$("stk").textContent=sk.n?"🔥 Daily streak: "+sk.n+" (best "+sk.best+")":(sk.best?"Best daily streak: "+sk.best:"");$("tend").checked=store.get("lon_tend")=="1";
   $("cast").innerHTML=CAST.map(c=>"<div>"+avatar(c)+c.n+"</div>").join("");
   const b=store.get("lon_best"),xb=store.get("lon_xbest");$("best").textContent=(b?"Your endless best: "+b+" points. ":"")+(xb?"Extreme best: "+xb+" points.":"");
   let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}
@@ -294,14 +328,15 @@ function render(){
   $("name").textContent=q.c.n;$("role").textContent="Your "+q.c.role;
   $("prop").textContent=ICON[q.it]||"📦";$("prop").className="prop";$("scn").innerHTML=bgSvg(q.c.n);$("hab").textContent=q.hb?"Known habit: "+q.habit+", so it doesn’t count as a tell.":"";$("hab").classList.toggle("hide",!q.hb);
   $("setup").textContent=q.setup+(dl?" All "+q.cl.length+" hints are true, but each one you reveal costs 15 points.":"");
-  $("claim").textContent=q.claim;
+  say(q.claim);
   $("clues").innerHTML=dl?"":q.cl.map(c=>"<li>"+esc(c.t)+"</li>").join("");
   $("h1").textContent="Reveal a true hint ("+q.cl.length+" left, −15)";$("h1").disabled=!q.cl.length;
   $("pick").classList.remove("hide");$("hints").classList.toggle("hide",!dl);
   $("reveal").classList.add("hide");$("next").classList.add("hide");
-  cycle(q.mom,q.hb,m=="extreme");$("face").style.setProperty("--a",m=="extreme"?.45:[1,1,.8,.55,.4,.3,.3][q.d]);clearTimeout(G.tt);$("tmr").classList.toggle("hide",m!="extreme");if(m=="extreme"){const b=$("tbar");b.style.transition="none";b.style.width="100%";void b.offsetWidth;b.style.transition="width 10s linear";b.style.width="0%";G.t0=Date.now();G.tt=setTimeout(()=>pick(-1),10000)}$("nt").textContent=dl?"Today’s tells are faint. Lean on the clues.":m=="extreme"?"Extreme: you have 10 seconds. Every tell shows up in the first 8.":q.d>=3?"Subtle now. One tell alone means little, so watch for patterns.":"Watch their body language. Everything they do is a tell, but not every tell is a lie.";
+  cycle(q.mom,q.hb,m=="extreme");$("face").style.setProperty("--a",m=="extreme"?.45:[1,1,.8,.55,.4,.3,.3][q.d]);clearTimeout(G.tt);clearInterval(G.tk);$("tmr").classList.toggle("hide",m!="extreme");if(m=="extreme"){const b=$("tbar");b.style.transition="none";b.style.width="100%";void b.offsetWidth;b.style.transition="width 10s linear";b.style.width="0%";G.t0=Date.now();G.tt=setTimeout(()=>pick(-1),10000);let n=0;G.tk=setInterval(()=>{const l=10-(Date.now()-G.t0)/1000;n++;if(l<=3||n%2==0)SFX.tick(l<=3)},500)}$("nt").textContent=dl?"Today’s tells are faint. Lean on the clues.":m=="extreme"?"Extreme: you have 10 seconds. Every tell shows up in the first 8.":q.d>=3?"Subtle now. One tell alone means little, so watch for patterns.":"Watch their body language. Everything they do is a tell, but not every tell is a lie.";
 }
 function upd(){
+  {const e=$("score");e.classList.remove("bump");void e.offsetWidth;e.classList.add("bump")}
   $("score").textContent=G.score+" pts"+(G.streak>1?" · x"+G.streak:"");
   $("hearts").innerHTML=G.mode=="daily"?"":(G.mode=="extreme"?[0]:[0,1,2]).map(i=>i<G.lives?"♥":"<i>♥</i>").join("");
 }
@@ -315,10 +350,12 @@ function hint(){
 function pick(v){
   if(G.answered)return;G.answered=true;G.total++;
   const q=G.q,ok=v===q.a,daily=G.mode=="daily",xt=G.mode=="extreme";
-  let left=0;if(xt){clearTimeout(G.tt);left=Math.max(0,10-(Date.now()-G.t0)/1000);const b=$("tbar"),w=getComputedStyle(b).width;b.style.transition="none";b.style.width=w}
+  let left=0;if(xt){clearTimeout(G.tt);clearInterval(G.tk);left=Math.max(0,10-(Date.now()-G.t0)/1000);const b=$("tbar"),w=getComputedStyle(b).width;b.style.transition="none";b.style.width=w}
   if(ok){G.right++;G.streak++;G.best=Math.max(G.best,G.streak);if(xt)G.score+=50+Math.round(left*3)+Math.max(0,G.streak-1)*5;else if(!daily)G.score+=10*q.d+Math.max(0,G.streak-1)*2}
   else{G.streak=0;G.lives--;if(daily)G.score=0}
-  upd();clearInterval(CT);
+  upd();clearInterval(CT);clearInterval(TW);$("claim").textContent=q.claim;$("face").classList.remove("say");
+  ok?SFX.ok():SFX.no();if(ok&&G.streak>=3)setTimeout(SFX.win,260);if(q.lie)setTimeout(SFX.caught,380);
+  {const sc=document.querySelector(".scene");sc.classList.remove("shake");if(!ok){void sc.offsetWidth;sc.classList.add("shake");navigator.vibrate&&navigator.vibrate(180)}}
   $("face").dataset.t="";$("face").innerHTML=avatar(q.c,q.lie?"l":"t");
   $("prop").className="prop "+(q.lie?"caught":"safe");
   document.querySelectorAll("#clues li").forEach((li,i)=>{
@@ -337,13 +374,13 @@ function next(){
   G.round++;G.q=mk(G.mode=="extreme"?5:Math.min(5,1+Math.floor(G.round/3)));render();
 }
 function finish(){
-  show("end");clearInterval(CT);clearTimeout(G.tt);const d=G.mode=="daily",p=G.right/G.total;
+  show("end");clearInterval(CT);clearTimeout(G.tt);clearInterval(G.tk);const d=G.mode=="daily",p=G.right/G.total;
   $("fs").textContent=G.score;$("fc").textContent=G.right+"/"+G.total;$("fb").textContent=G.best;
   $("share").classList.toggle("hide",!d);$("cde").classList.toggle("hide",!d);
   if(d){
     $("rank").textContent=G.score>=100?"Flawless":G.score>0?"Case closed":"Fooled this time";
     $("verdict").textContent=G.score>0?"You solved today’s daily case and kept "+G.score+" of 100 points. A fresh case drops tomorrow.":"The daily case got you. Tomorrow’s is a new one.";
-    store.set("lon_daily",JSON.stringify({date:today(),score:G.score,salt:salt()}));
+    store.set("lon_daily",JSON.stringify({date:today(),score:G.score,salt:salt()}));const sk=bumpStreak(G.score>0);$("verdict").textContent+=" 🔥 Daily streak: "+sk.n+" (best "+sk.best+").";postLB();
   }else{
     $("rank").textContent=G.mode=="extreme"?(G.right>=10?"Locked in":G.right>=5?"Quick eyes":G.right>=2?"Warming up":"Too slow"):G.right>=15?"Human lie detector":G.right>=8?"Suspiciously sharp":G.right>=4?"Decent instincts":"Easy to fool";
     $("verdict").textContent="You survived "+G.total+" cases. Remember: nervous people can be honest, and calm people can lie. Go with the pattern of tells.";
@@ -373,7 +410,7 @@ function fromSpecial(sc,d,o){
 function msg(t){$("amsg").textContent=t}
 function setST(d){Object.assign(AS,d);store.set("lon_st",JSON.stringify(AS))}
 function saveST(){store.set("lon_st",JSON.stringify(AS));if(DB)DB.doc("config/state").set(AS).then(()=>msg("Saved. Signed-in players will see it.")).catch(()=>msg("Saved on this device only. Only the owner can publish changes to everyone."));else msg("Saved on this device only.")}
-(async()=>{if(!window.claude)return;try{const u=await claude.use("user");ISO=u?await u.isOwner():false}catch(e){}
+(async()=>{if(!window.claude)return;try{const u=await claude.use("user");ISO=u?await u.isOwner():false;UID=u?await u.id():null}catch(e){}
 try{DB=await claude.use("db");if(DB)DB.doc("config/state").onSnapshot(sn=>{if(sn.exists){setST(sn.data());if(!$("home").classList.contains("hide"))home();adm()}},()=>{})}catch(e){}})();
 function adm(){
   $("am").textContent=ISO?"You’re the owner, so changes publish to everyone signed in.":"Changes here reach everyone only when the owner makes them.";
@@ -395,6 +432,27 @@ addEventListener("keydown",e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)
   kb+=e.key;if(!"Blanks".startsWith(kb)){kb=null;return}
   if(kb=="Blanks"){kb=null;openAdm()}});
 addEventListener("keydown",e=>{if(e.key=="Escape")$("adm").classList.add("hide")});
+let AC=null,MUTE=store.get("lon_mute")=="1",TW;
+function tone(f,d,t,v,w){if(MUTE)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state=="suspended")AC.resume();const o=AC.createOscillator(),g=AC.createGain(),a=AC.currentTime+(w||0);o.type=t||"sine";o.frequency.value=f;g.gain.setValueAtTime(v||.15,a);g.gain.exponentialRampToValueAtTime(.001,a+d);o.connect(g);g.connect(AC.destination);o.start(a);o.stop(a+d)}catch(e){}}
+const SFX={click:()=>tone(520,.06,"triangle",.08),ok:()=>{tone(660,.12);tone(880,.18,"sine",.15,.1)},no:()=>{tone(180,.3,"sawtooth",.1);tone(140,.3,"sawtooth",.08,.15)},tick:h=>tone(h?1100:800,.05,"square",.05),win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.2,"triangle",.12,i*.1)),caught:()=>{tone(300,.15,"square",.07);tone(220,.25,"square",.07,.12)}};
+$("mute").textContent=MUTE?"🔇":"🔊";
+$("mute").onclick=()=>{MUTE=!MUTE;store.set("lon_mute",MUTE?"1":"0");$("mute").textContent=MUTE?"🔇":"🔊"};
+document.addEventListener("click",e=>{if(e.target.closest("button")&&e.target.id!="mute")SFX.click()});
+function say(t){clearInterval(TW);const b=$("claim"),f=$("face");b.style.minHeight="";b.textContent=t;if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;b.style.minHeight=b.offsetHeight+"px";b.textContent="";let i=0;f.classList.add("say");TW=setInterval(()=>{b.textContent=t.slice(0,++i);if(i%3==0)tone(300+Math.random()*80,.03,"square",.025);if(i>=t.length){clearInterval(TW);f.classList.remove("say")}},32)}
+const ymd=o=>{const[y,m,d]=today().split("-").map(Number);return new Date(Date.UTC(y,m-1,d+o)).toISOString().slice(0,10)};
+function streak(){let k=null;try{k=JSON.parse(store.get("lon_streak"))}catch(e){}k=k||{last:"",n:0,best:0};if(k.last!=today()&&k.last!=ymd(-1))k.n=0;return k}
+function bumpStreak(ok){const k=streak();if(k.last==today())return k;if(ok){k.n++;k.best=Math.max(k.best,k.n)}else k.n=0;k.last=today();store.set("lon_streak",JSON.stringify(k));return k}
+let UID=null,NICK=store.get("lon_nick")||"",LT="t";
+function postLB(){if(!DB||!UID||!NICK)return Promise.resolve(false);let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}if(!dd)return Promise.resolve(false);const k=streak();return DB.doc("lb/"+UID).set({n:NICK,date:dd.date,score:dd.score,streak:k.n,best:k.best}).then(()=>true).catch(()=>false)}
+async function loadLB(tab){LT=tab;$("lbm").textContent="";$("lbl").innerHTML="";
+  if(!DB){$("lbm").textContent="The leaderboard needs a signed-in view of this page.";return}
+  try{const col=DB.collection("lb"),q=tab=="s"?col.orderBy("streak","desc").limit(15):col.where("date","==",today()).orderBy("score","desc").limit(15);
+    let rows=(await q.get()).docs.map(d=>d.data());if(tab=="s")rows=rows.filter(r=>r.streak>0&&(r.date==today()||r.date==ymd(-1)));
+    $("lbl").innerHTML=rows.length?rows.map((r,i)=>"<li>"+(i+1)+". "+esc(r.n)+" · "+(tab=="s"?"🔥 "+r.streak:r.score+" pts")+"</li>").join(""):'<li class="mut">Nobody yet</li>'}catch(e){$("lbm").textContent="Couldn’t load the leaderboard."}}
+function openLB(){$("lbn").value=NICK;$("lbp").classList.remove("hide");loadLB("t")}
+$("lbbtn").onclick=$("lbbtn2").onclick=openLB;$("lbx").onclick=()=>$("lbp").classList.add("hide");
+$("lbt").onclick=()=>loadLB("t");$("lbs").onclick=()=>loadLB("s");
+$("lbsv").onclick=async()=>{const v=$("lbn").value.trim().slice(0,16);if(!v){$("lbm").textContent="Pick a nickname first.";return}NICK=v;store.set("lon_nick",v);const ok=await postLB();await loadLB(LT);$("lbm").textContent=ok?"Posted.":"Nickname saved. Your score posts once you finish today’s daily."};
 const pad=n=>String(n).padStart(2,"0");
 function left(){const p=new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"numeric",second:"numeric",hourCycle:"h23"}).formatToParts(new Date()),g=t=>+p.find(x=>x.type==t).value;return 86400-(g("hour")*3600+g("minute")*60+g("second"))}
 let DK=today();
