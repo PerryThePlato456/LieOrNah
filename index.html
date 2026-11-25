@@ -3,8 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Detectdle</title>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<title>Detectdle: the daily lie detector game</title>
+<meta name="description" content="Detectdle is a free daily lie detector game. Read animated characters’ body language, weigh the clues, and call it: truth or lie? New case every day, plus endless and extreme modes, streaks and a leaderboard.">
+<meta name="keywords" content="Detectdle, lie detector game, spot the liar, daily puzzle game, body language game, Wordle-style game, truth or lie">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Detectdle: the daily lie detector game">
+<meta property="og:description" content="Can you spot who’s lying? Read the body language, weigh the clues, and call it. A new daily case every day.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Detectdle: the daily lie detector game">
+<meta name="twitter:description" content="Can you spot who’s lying? A new daily case every day, plus endless and extreme modes.">
+<meta name="theme-color" content="#1b1740">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"Detectdle","description":"A free daily lie detector game: read animated characters’ body language, weigh the clues, and decide whether they are telling the truth.","genre":["Puzzle","Casual"],"applicationCategory":"Game","playMode":"SinglePlayer","isAccessibleForFree":true}</script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Special+Elite&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='27' cy='27' r='17' fill='%23ffb703' stroke='%231b1740' stroke-width='5'/%3E%3Cpath d='M40 40L56 56' stroke='%231b1740' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 :root{--bg:#e9e6ff;--ink:#1b1740;--card:#fff;--soft:#d8d3ff;--lie:#ff3d7f;--truth:#0f9d8a;--mut:#5a5680;--gold:#ffb703;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -12,12 +23,12 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 :root[data-theme="dark"]{--bg:#14112e;--ink:#f1efff;--card:#221d4a;--soft:#342d6b;--lie:#ff6b9d;--truth:#2fd1b9;--mut:#a7a2d4}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,-apple-system,sans-serif;line-height:1.45;min-height:100vh}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,-apple-system,sans-serif;line-height:1.45;min-height:100vh}
 main{max-width:1000px;margin:0 auto;padding:20px 16px 40px}
 h1{font-size:clamp(2.6rem,12vw,4rem);line-height:.92;margin:.1em 0 .25em;font-weight:800;letter-spacing:-.035em}
 h2{font-size:1.7rem;margin:.2em 0;font-weight:800;letter-spacing:-.02em}
 p{margin:.4em 0}.mut{color:var(--mut)}
-button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:14px 18px;font-weight:600;color:var(--ink)}
+button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:14px 18px;font-weight:600;color:var(--ink);background:var(--soft)}
 button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 button:disabled{opacity:.4;cursor:default}
 .go{background:var(--ink);color:var(--bg);width:100%;margin-top:12px;font-size:1.05rem}
@@ -119,23 +130,104 @@ li.dim{opacity:.4;text-decoration:line-through}
 @keyframes scn{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
 @keyframes bm{50%{transform:scale(1.25)}}
 @media (prefers-reduced-motion:reduce){.scene.shake,#score.bump,.char.say .mo{animation:none!important}}
+.qb{display:grid;grid-template-columns:1fr 1fr;gap:8px}.qb button{background:var(--soft);font-size:.85rem;padding:10px}
+.hints button.sel{background:var(--ink);color:var(--bg)}
+#acc select{width:100%;font:inherit;padding:10px;border-radius:10px;border:2px solid var(--soft);background:var(--bg);color:var(--ink);margin-top:8px}
+#verdict,.hab{white-space:pre-line}
+.hero{text-align:center;margin:10px 0 18px}.logo{width:64px;height:64px;margin:0 auto 6px}.logo svg{width:100%;height:100%;display:block}
+h1,h2,.nm,.dcard .dt{font-family:'Fraunces',Georgia,serif}.tag{color:var(--mut);margin:0;font-weight:600}
+.dcard{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;margin-top:6px;padding:18px 20px;background:var(--gold);color:#2b1c00;border-radius:22px;text-align:left;box-shadow:0 8px 24px rgba(255,183,3,.3)}
+.dcard .dt{font-size:1.4rem;font-weight:800}.dcard .ds,.dcard .cdp{font-size:.9rem;font-weight:600;opacity:.8}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.row3 button{background:var(--card);padding:12px 6px;font-size:.88rem;box-shadow:0 3px 12px rgba(27,23,64,.08)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}.chips p{margin:0;background:var(--card);padding:6px 14px;border-radius:99px;font-size:.85rem;font-weight:600}.chips p:empty{display:none}
+button{transition:transform .1s,filter .15s}button:hover:not(:disabled){filter:brightness(1.07)}button:active:not(:disabled){transform:scale(.98)}
+.card,.admc{box-shadow:0 8px 28px rgba(27,23,64,.1)}
+.card ul.clues li{border:0;background:var(--soft);border-radius:14px;padding:10px 12px}
+.reveal ul.clues li{background:var(--card)}
+.tiles{font-size:1.2rem;letter-spacing:3px}
+.hab{background:var(--soft);border-radius:14px;padding:10px 12px;margin-top:10px;line-height:1.5}
+.gridp{background:var(--card);border-radius:16px;padding:14px;font:inherit;font-size:1.1rem;line-height:1.5;margin-top:12px;white-space:pre-wrap;text-align:center}
+.qb button{text-align:left;box-shadow:0 2px 8px rgba(27,23,64,.06)}
+.top{padding:4px 2px}
+body.hm{background-color:#16121d;background-image:radial-gradient(ellipse at 50% -8%,rgba(255,196,110,.3),transparent 55%),repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 7px);color:#f4efe6}
+#home{max-width:600px;position:relative}
+.live{font:.75rem 'Special Elite',monospace;letter-spacing:.14em;color:#ff6b9d;display:flex;align-items:center;gap:8px;margin-top:2px}
+.live i{width:8px;height:8px;border-radius:50%;background:#ff6b9d;animation:blk 1.2s steps(2) infinite}
+.pgm{overflow:hidden;height:54px;margin:4px -16px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent);mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent)}
+.pg{width:200%;height:100%;display:block;animation:pgs 7s linear infinite}.pg path{stroke:#ff6b9d}
+.ttl{position:relative;margin-top:6px}
+.ttl h1{font-size:clamp(3.2rem,16vw,5.4rem);line-height:.9;color:#f4efe6;letter-spacing:-.035em;margin:0}
+.ttl h1 span{color:#ffb703;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='8'%3E%3Cpath d='M0 4Q7 0 15 4T30 4T45 4T60 4' stroke='%23ff6b9d' fill='none' stroke-width='2.5'/%3E%3C/svg%3E") repeat-x bottom/60px 8px;padding-bottom:8px}
+.stamp{position:absolute;right:0;top:-4px;border:3px solid #ff3d5a;color:#ff3d5a;font:1rem 'Special Elite',monospace;text-transform:uppercase;letter-spacing:.12em;padding:2px 10px;border-radius:4px;transform:rotate(-8deg);animation:slam .5s .5s both}
+.tw{font:1.05rem 'Special Elite',monospace;color:#d9d2c3;margin:12px 0 0;clip-path:inset(0 100% 0 0);animation:typ 1.6s steps(32) .3s forwards}
+.board{display:flex;gap:14px;align-items:flex-start;margin:22px 0 8px}
+.pol{position:relative;flex:0 0 54%;margin:0;background:#fbf8f1;padding:10px 10px 8px;border-radius:3px;box-shadow:0 14px 30px rgba(0,0,0,.5);transform:rotate(-3deg);cursor:pointer;animation:drop .6s .2s both;transition:transform .25s}
+.pol:hover{transform:rotate(-1deg) scale(1.02)}
+.tape{position:absolute;top:-12px;left:50%;width:70px;height:22px;margin-left:-35px;background:rgba(255,226,122,.7);transform:rotate(3deg);z-index:2}
+.ph{position:relative;aspect-ratio:1;overflow:hidden;background:#ccc}
+#hc{position:absolute;left:10%;right:10%;bottom:-8%;--a:1}#hc svg{width:100%;display:block;overflow:visible}
+.pol figcaption{font:600 1.1rem 'Caveat',cursive,sans-serif;color:#2b2430;text-align:center;padding-top:6px;line-height:1.1;min-height:2.2em}
+.note{flex:1;background:#ffe27a;color:#3b2a10;padding:14px 14px 16px;transform:rotate(3deg);margin-top:18px;box-shadow:0 8px 20px rgba(0,0,0,.4);font:600 1.15rem 'Caveat',cursive,sans-serif;line-height:1.25;animation:drop .6s .4s both}
+.note b{display:block;font-size:1.35rem;border-bottom:2px solid rgba(59,42,16,.3);margin-bottom:6px}
+.note p{margin:3px 0}.note p:empty{display:none}
+.folder{position:relative;display:block;width:100%;margin-top:30px;padding:0;background:none;text-align:left;transition:transform .2s;animation:drop .6s .5s both}
+.folder:hover{transform:rotate(-1deg) translateY(-4px)}
+.ftab{position:absolute;top:-24px;left:18px;background:#e2b968;color:#3b2a10;font:.8rem 'Special Elite',monospace;padding:5px 14px;border-radius:10px 10px 0 0;letter-spacing:.08em}
+.fbody{display:block;position:relative;background:#efd29a;color:#2e2210;border-radius:4px 18px 18px 18px;padding:18px;box-shadow:0 8px 0 -3px #d4b06a,0 20px 32px rgba(0,0,0,.5)}
+.fbody .ds{display:block;font:800 1.4rem 'Fraunces',serif;margin-bottom:8px;max-width:75%}
+.fl{display:block;font:.9rem 'Special Elite',monospace;line-height:1.7}
+.red{display:inline-block;height:.85em;background:#2e2210;border-radius:2px;vertical-align:-1px}
+.fbody .cdp{display:block;font:.85rem 'Special Elite',monospace;margin-top:10px;opacity:.85}
+.fstamp{position:absolute;right:14px;top:14px;border:3px solid #c1121f;color:#c1121f;font:1.05rem 'Special Elite',monospace;padding:2px 10px;transform:rotate(8deg);letter-spacing:.12em;border-radius:4px;opacity:.9}
+.fstamp.done{border-color:#1b7f5c;color:#1b7f5c}
+.ticket{position:relative;display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:22px;padding:16px 22px;background:#f4efe6;color:#1d1a24;border-radius:10px;font:800 1.35rem 'Fraunces',serif;text-align:left;animation:drop .6s .6s both}
+.ticket small{display:block;font:.8rem 'Special Elite',monospace;opacity:.7;margin-top:2px}
+.ticket em{font:.8rem 'Special Elite',monospace;font-style:normal;letter-spacing:.14em;border-left:2px dashed rgba(29,26,36,.35);padding-left:16px;align-self:stretch;display:flex;align-items:center}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:#16121d;transform:translateY(-50%)}
+.ticket::before{left:-9px}.ticket::after{right:-9px}
+.ticket:hover{transform:rotate(.8deg)}
+.tabs{display:flex;gap:8px;margin-top:18px}
+.tabs button{flex:1;background:#2a2433;color:#f4efe6;border-radius:10px;padding:13px 6px;font:600 .85rem 'DM Sans',sans-serif;border-bottom:4px solid var(--c)}
+.xtreme{background:repeating-linear-gradient(-45deg,#111 0 9px,#ffd60a 9px 18px);border:3px solid #111;border-radius:6px;padding:6px;transform:rotate(-3deg);box-shadow:0 6px 18px rgba(0,0,0,.5)}
+.xtreme span{display:block;background:#ffd60a;color:#111;font:.85rem 'Special Elite',monospace;text-transform:uppercase;letter-spacing:.1em;padding:3px 10px}
+@keyframes blk{50%{opacity:.2}}
+@keyframes pgs{to{transform:translateX(-50%)}}
+@keyframes slam{0%{transform:scale(2.6) rotate(-22deg);opacity:0}60%{transform:scale(.94) rotate(-8deg);opacity:1}100%{transform:scale(1) rotate(-8deg)}}
+@keyframes typ{to{clip-path:inset(0)}}
+@keyframes drop{from{transform:translateY(-26px) rotate(-10deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.pg,.live i,.stamp,.tw,.pol,.note,.folder,.ticket{animation:none!important}.tw{clip-path:none}}
+.ver{position:fixed;left:16px;bottom:calc(22px + env(safe-area-inset-bottom,0px));font:.75rem 'Special Elite',monospace;letter-spacing:.12em;color:#d9d2c3;opacity:.55}
+.admc .top button{background:var(--soft);color:var(--ink);padding:10px 18px}
+.admc input[type=checkbox]{width:24px;height:24px;flex:0 0 24px;padding:0;margin:0;border-radius:6px;accent-color:var(--lie)}
+.admc .tog{align-items:center;gap:14px;padding:10px 0;margin:0}
+.admc .tog span{flex:1;line-height:1.35}
+.adm.c:not(.hide){display:flex;align-items:center}.adm.c .admc{width:100%}
+.tuv{margin:4px 0 8px}.tuv svg{width:150px;display:block;margin:0 auto}
+.lgd{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}.lgd span{background:var(--soft);padding:8px 12px;border-radius:99px;font-weight:600;font-size:.9rem}
+.tud{margin:14px 0 10px}.tud i{width:8px;height:8px;border-radius:50%;background:var(--soft);display:inline-block;margin:0 3px}.tud i.on{background:var(--ink)}
+.acct{display:flex;flex-direction:column;gap:2px;margin:10px 0 8px}.acct span{font-size:.85rem}
+#nt:empty{display:none}
+.tabs button{font-size:.8rem;padding:13px 2px;min-width:0}
+.duelst{background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 12px;font-weight:600;margin-top:10px}
+.dlcode{font:800 2.6rem 'Fraunces',serif;letter-spacing:.3em;text-align:center;background:var(--soft);border-radius:14px;padding:10px 10px 10px 22px;cursor:pointer}
 </style>
 </head>
 <body>
 <main>
 <section id="home">
-  <h1>Detectdle</h1>
-  <p>Someone you know says they didn’t take your stuff. Watch their body language, count the tells, and call it. The cases never run out.</p>
-  <button class="go" id="endless">Play endless</button>
-  <button class="go daily" id="dly">Daily case</button>
-  <label class="tog"><input type="checkbox" id="tend"><span>Tendencies (endless and extreme): every character has a habit that doesn’t count as a tell</span></label>
-  <p class="mut cdp"></p>
-  <p class="mut" id="stk"></p>
-  <button class="go ghost" id="lbbtn">Leaderboard</button>
-  <p class="mut" id="best"></p>
-  <div class="cast" id="cast"></div>
-  <button class="xtreme" id="xbtn">Extreme mode</button>
-  <p class="mut" style="font-size:.85rem">Every character and scenario is made up.</p>
+  <div class="live"><i></i>LIE DETECTOR · LIVE</div>
+  <div class="pgm"><svg class="pg" viewBox="0 0 600 60" preserveAspectRatio="none" aria-hidden="true"><g id="w"><path fill="none" stroke-width="2.2" stroke-linejoin="round" d="M0 30H20L26 24L32 36L38 30H70L74 28L80 32L86 30H120L126 6L132 54L138 16L144 30H190L196 26L202 34L208 30H260L264 22L270 38L276 30H300"/></g><use href="#w" x="300"/></svg></div>
+  <div class="ttl"><h1>Detect<span>dle</span></h1><div class="stamp">Case open</div></div>
+  <p class="tw">Somebody’s lying. Find out who.</p>
+  <div class="board">
+    <figure class="pol" id="pol" title="Tap for another suspect"><i class="tape"></i><div class="ph"><div class="scn" id="hbg"></div><div id="hc"></div></div><figcaption id="hcap"></figcaption></figure>
+    <div class="note"><b>Your file</b><p id="stk"></p><p id="best"></p><p id="nof">Nothing on record yet. Go solve something.</p></div>
+  </div>
+  <button class="folder" id="dly"><span class="ftab">DAILY CASE · NO. <b id="dno"></b></span><span class="fbody"><span class="fstamp" id="fst">OPEN</span><span class="ds" id="dst"></span><span class="fl">SUBJECT: <i class="red" style="width:84px"></i></span><span class="fl">ITEM: <i class="red" style="width:56px"></i></span><span class="fl">VERDICT: ???</span><span class="cdp"></span></span></button>
+  <button class="ticket" id="endless"><span>Play endless<small>no limit, no mercy</small></span><em>ADMIT ONE</em></button>
+  <div class="tabs"><button id="lbbtn" style="--c:#ffb703">Ranks</button><button id="arbtn" style="--c:#ff6b9d">Archive</button><button id="dubtn" style="--c:#ff9f1c">1v1</button><button id="stbtn" style="--c:#2fd1b9">Settings</button></div>
+  <span class="ver">v2.1</span>
+  <button class="xtreme" id="xbtn"><span>Extreme mode</span></button>
 </section>
 
 <section id="play" class="hide" aria-live="polite">
@@ -159,7 +251,14 @@ li.dim{opacity:.4;text-decoration:line-through}
         <button class="t" data-a="1">Truth</button>
         <button class="l" data-a="0">Lie</button>
       </div>
+      <div class="hide" id="qs"><p class="mut" id="lg" style="font-size:.85rem">🟩 stress tell · 🟨 their usual habit · ⬜ calm</p><p><b id="qn"></b></p><div class="qb" id="qb"></div></div>
+      <div class="hide" id="acc"><p><b>Your accusation</b></p>
+        <div class="hints"><button data-p="0">Guilty</button><button data-p="1">Innocent</button></div>
+        <select id="a2"></select><select id="a3"></select>
+        <p class="mut" id="am2" aria-live="polite"></p>
+        <button class="go" id="lock">Lock in</button></div>
       <div class="reveal hide" id="reveal"></div>
+      <p class="duelst hide" id="dw"></p>
       <button class="go hide" id="next">Next</button>
     </div>
   </div>
@@ -170,6 +269,7 @@ li.dim{opacity:.4;text-decoration:line-through}
   <p id="verdict"></p>
   <div class="stats"><div><strong id="fs"></strong>points</div><div><strong id="fc"></strong>correct</div><div><strong id="fb"></strong>best streak</div></div>
   <p class="mut cdp hide" id="cde"></p>
+  <pre class="gridp hide" id="gridp"></pre>
   <button class="go daily hide" id="share">Copy result</button>
   <button class="go ghost" id="lbbtn2">Leaderboard</button>
   <button class="go" id="menu">Back to menu</button>
@@ -206,6 +306,32 @@ li.dim{opacity:.4;text-decoration:line-through}
   <label class="lab">Nickname (shown to everyone, 16 characters max)</label><input id="lbn" maxlength="16">
   <button class="go" id="lbsv">Save and post my score</button>
  </div>
+</div>
+<div class="adm hide" id="stp" role="dialog" aria-modal="true" aria-label="Settings">
+ <div class="admc"><div class="top"><h2>Settings</h2><button id="stx">Close</button></div>
+ <label class="tog"><input type="checkbox" id="snd"><span>Sound</span></label>
+ <div class="acct"><b id="acn"></b><span class="mut" id="acs"></span><span class="mut" id="uidl" style="font-size:.7rem;word-break:break-all"></span></div>
+ <input id="snk" maxlength="16" placeholder="Nickname"><button class="go ghost" id="snks">Save nickname</button>
+ <button class="go ghost hide" id="gbtn">Sign in with Google</button>
+ <button class="go ghost" id="tutbtn">Replay tutorial</button>
+ <p class="mut" style="font-size:.8rem">Every character and scenario is made up. Detectdle v2.1</p></div>
+</div>
+<div class="adm hide" id="dlp" role="dialog" aria-modal="true" aria-label="1v1">
+ <div class="admc"><div class="top"><h2>1v1</h2><button id="dlx">Close</button></div>
+  <div id="dlmenu"><p class="mut">Same cases for both of you. Best of 3.</p><button class="go" id="dlnew">Create room</button>
+   <label class="lab">Or join with a code</label><input id="dlc" maxlength="4" placeholder="ABCD" style="text-transform:uppercase"><button class="go ghost" id="dljoin">Join room</button></div>
+  <div class="hide" id="dllob"><p class="mut">Room code (tap to copy)</p><div class="dlcode" id="dlcode"></div><p id="dlpl"></p><p class="mut" id="dlst"></p><button class="go ghost" id="dlleave">Leave room</button></div>
+  <p class="mut" id="dlm" aria-live="polite"></p></div>
+</div>
+<div class="adm c hide" id="wel" role="dialog" aria-modal="true" aria-label="Welcome">
+ <div class="admc" style="text-align:center"><h2>New here?</h2><p class="mut">Want a 30-second tutorial?</p><button class="go" id="wy">Show me</button><button class="go ghost" id="wn">Skip</button></div>
+</div>
+<div class="adm c hide" id="tov" role="dialog" aria-modal="true" aria-label="Tutorial">
+ <div class="admc" style="text-align:center"><div class="tuv" id="tuv"></div><h2 id="tuh"></h2><p class="mut" id="tut2"></p><div class="tud" id="tud"></div><div class="hints"><button id="tub">Back</button><button id="tun">Next</button></div></div>
+</div>
+<div class="adm hide" id="arp" role="dialog" aria-modal="true" aria-label="Case archive">
+ <div class="admc"><div class="top"><h2>Case archive</h2><button id="arx">Close</button></div>
+ <p class="mut">Play past daily cases. They don’t affect your streak or the leaderboard.</p><ul class="clues" id="arl"></ul></div>
 </div>
 <script>
 const $=id=>document.getElementById(id);
@@ -304,23 +430,22 @@ const today=()=>new Date().toLocaleDateString("en-CA",{timeZone:"America/New_Yor
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const COST={endless:[5,10],daily:[20,30]};
 let G;
-function show(id){["home","play","end"].forEach(s=>$(s).classList.toggle("hide",s!==id))}
+function show(id){document.body.classList.toggle("hm",id=="home");if(id!="home")clearInterval(HC);["home","play","end"].forEach(s=>$(s).classList.toggle("hide",s!==id));$("mute").classList.toggle("hide",id=="home")}
 function home(){
-  show("home");clearInterval(CT);clearTimeout(G&&G.tt);clearInterval(G&&G.tk);const sk=streak();$("stk").textContent=sk.n?"🔥 Daily streak: "+sk.n+" (best "+sk.best+")":(sk.best?"Best daily streak: "+sk.best:"");$("tend").checked=store.get("lon_tend")=="1";
-  $("cast").innerHTML=CAST.map(c=>"<div>"+avatar(c)+c.n+"</div>").join("");
-  const b=store.get("lon_best"),xb=store.get("lon_xbest");$("best").textContent=(b?"Your endless best: "+b+" points. ":"")+(xb?"Extreme best: "+xb+" points.":"");
+  show("home");clearInterval(CT);leaveDuel();clearTimeout(G&&G.tt);clearInterval(G&&G.tk);const sk=streak();$("stk").textContent=sk.n?"🔥 "+sk.n+"-day streak"+(sk.best>sk.n?" · best "+sk.best:""):(sk.best?"Best streak "+sk.best:"");
+    const b=store.get("lon_best"),xb=store.get("lon_xbest");$("best").textContent=(b?"Endless best "+b:"")+(b&&xb?" · ":"")+(xb?"Extreme best "+xb:"");
   let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}
-  $("dly").textContent=dd&&dd.date===today()&&(dd.salt||0)===salt()?"Daily case: done ("+dd.score+"/100)":"Daily case: super hard";
+  const dn=dd&&dd.date===today()&&(dd.salt||0)===salt();$("dst").textContent=dn?"Filed today · "+dd.score+"/100":"5 questions, 1 accusation";$("fst").textContent=dn?(dd.parts>=2?"SOLVED":"CLOSED"):"OPEN";$("fst").classList.toggle("done",!!dn&&dd.parts>=2);$("dno").textContent=num(today());$("nof").classList.toggle("hide",!!($("stk").textContent||$("best").textContent));homeChar();
 }
 function start(mode){
-  if(mode=="daily"){let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}if(dd&&dd.date===today()&&(dd.salt||0)===salt()){G={mode,lives:0,score:dd.score,streak:0,best:0,round:0,right:dd.score>0?1:0,total:1};return finish()}}
+  if(mode=="daily"){let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}if(dd&&dd.date===today()&&(dd.salt||0)===salt()){G={mode,det:true,locked:true,lives:0,score:dd.score,streak:0,best:0,round:0,right:0,total:1,parts:dd.parts||0,tot:dd.tot||3,grid:dd.grid||[],asked:dd.asked||0,marks:dd.marks||""};return finish()}}
   G={mode,lives:mode=="daily"||mode=="extreme"?1:3,score:mode=="daily"?100:0,streak:0,best:0,round:0,right:0,total:0};
-  if(mode=="daily"){G.q=dailyQ()}else{G.o={used:new Set(),tend:store.get("lon_tend")=="1"};G.q=mk(mode=="extreme"?5:1)}
+  if(mode=="daily"){G.det=true;G.asked=0;G.grid=[];G.log=[];G.q=dailyQ()}else{G.det=true;G.o={used:new Set()};G.q=mk(1)}
   show("play");render();
 }
 let CT;
 function cycle(m,hb,fast){clearInterval(CT);let i=0;const st=fast?Math.floor(8000/m.length):2600;const el=$("face"),go=()=>{el.dataset.t=(hb?hb+" ":"")+m[i++%m.length].join(" ")};go();CT=setInterval(go,st)}
-function render(){
+function render0(){
   const q=G.q,m=G.mode,dl=m=="daily";G.answered=false;G.rev=0;
   $("lvl").textContent=dl?"Daily case":m=="extreme"?"Extreme":"Level "+q.d+": "+LV[q.d];$("lvl").className="badge"+(dl?" d":m=="extreme"?" x":"");
   upd();
@@ -333,12 +458,12 @@ function render(){
   $("h1").textContent="Reveal a true hint ("+q.cl.length+" left, −15)";$("h1").disabled=!q.cl.length;
   $("pick").classList.remove("hide");$("hints").classList.toggle("hide",!dl);
   $("reveal").classList.add("hide");$("next").classList.add("hide");
-  cycle(q.mom,q.hb,m=="extreme");$("face").style.setProperty("--a",m=="extreme"?.45:[1,1,.8,.55,.4,.3,.3][q.d]);clearTimeout(G.tt);clearInterval(G.tk);$("tmr").classList.toggle("hide",m!="extreme");if(m=="extreme"){const b=$("tbar");b.style.transition="none";b.style.width="100%";void b.offsetWidth;b.style.transition="width 10s linear";b.style.width="0%";G.t0=Date.now();G.tt=setTimeout(()=>pick(-1),10000);let n=0;G.tk=setInterval(()=>{const l=10-(Date.now()-G.t0)/1000;n++;if(l<=3||n%2==0)SFX.tick(l<=3)},500)}$("nt").textContent=dl?"Today’s tells are faint. Lean on the clues.":m=="extreme"?"Extreme: you have 10 seconds. Every tell shows up in the first 8.":q.d>=3?"Subtle now. One tell alone means little, so watch for patterns.":"Watch their body language. Everything they do is a tell, but not every tell is a lie.";
+  cycle(q.mom,q.hb,m=="extreme");$("face").style.setProperty("--a",m=="extreme"?.45:[1,1,.8,.55,.4,.3,.3][q.d]);clearTimeout(G.tt);clearInterval(G.tk);$("tmr").classList.toggle("hide",m!="extreme");if(m=="extreme"){const b=$("tbar");b.style.transition="none";b.style.width="100%";void b.offsetWidth;b.style.transition="width 30s linear";b.style.width="0%";G.t0=Date.now();G.tt=setTimeout(()=>G.det?timeUp():pick(-1),30000);let n=0;G.tk=setInterval(()=>{const l=30-(Date.now()-G.t0)/1000;n++;if(l<=3||n%2==0)SFX.tick(l<=3)},500)}$("nt").textContent=dl?"Today’s tells are faint. Lean on the clues.":m=="extreme"?"Extreme: you have 10 seconds. Every tell shows up in the first 8.":q.d>=3?"Subtle now. One tell alone means little, so watch for patterns.":"Watch their body language. Everything they do is a tell, but not every tell is a lie.";
 }
 function upd(){
   {const e=$("score");e.classList.remove("bump");void e.offsetWidth;e.classList.add("bump")}
   $("score").textContent=G.score+" pts"+(G.streak>1?" · x"+G.streak:"");
-  $("hearts").innerHTML=G.mode=="daily"?"":(G.mode=="extreme"?[0]:[0,1,2]).map(i=>i<G.lives?"♥":"<i>♥</i>").join("");
+  $("hearts").innerHTML=G.mode=="daily"||G.mode=="duel"?"":(G.mode=="extreme"?[0]:[0,1,2]).map(i=>i<G.lives?"♥":"<i>♥</i>").join("");
 }
 function hint(){
   const n=G.q.cl.length;
@@ -370,10 +495,13 @@ function pick(v){
   $("next").classList.remove("hide");$("next").focus();
 }
 function next(){
+  if(G.mode=="duel")return duelNext();
   if(G.mode=="daily"||G.lives<1)return finish();
   G.round++;G.q=mk(G.mode=="extreme"?5:Math.min(5,1+Math.floor(G.round/3)));render();
 }
 function finish(){
+  $("fc").nextSibling.textContent="correct";$("fb").nextSibling.textContent="best streak";$("gridp").classList.add("hide");
+  if(G.det&&G.mode=="daily")return dFinish();
   show("end");clearInterval(CT);clearTimeout(G.tt);clearInterval(G.tk);const d=G.mode=="daily",p=G.right/G.total;
   $("fs").textContent=G.score;$("fc").textContent=G.right+"/"+G.total;$("fb").textContent=G.best;
   $("share").classList.toggle("hide",!d);$("cde").classList.toggle("hide",!d);
@@ -384,22 +512,22 @@ function finish(){
   }else{
     $("rank").textContent=G.mode=="extreme"?(G.right>=10?"Locked in":G.right>=5?"Quick eyes":G.right>=2?"Warming up":"Too slow"):G.right>=15?"Human lie detector":G.right>=8?"Suspiciously sharp":G.right>=4?"Decent instincts":"Easy to fool";
     $("verdict").textContent="You survived "+G.total+" cases. Remember: nervous people can be honest, and calm people can lie. Go with the pattern of tells.";
-    if(G.mode=="extreme")$("verdict").textContent="You cleared "+G.right+" extreme case"+(G.right==1?"":"s")+" before it caught you. Every tell shows inside 8 seconds, so if you’re locked in there’s time to spare.";
+    if(G.mode=="extreme")$("verdict").textContent="You cleared "+G.right+" extreme case"+(G.right==1?"":"s")+" before it caught you. You get 30 seconds a case, so stay locked in.";
     const bk=G.mode=="extreme"?"lon_xbest":"lon_best";if(G.score>(+store.get(bk)||0))store.set(bk,G.score);
   }
 }
 $("endless").onclick=()=>start("endless");$("xbtn").onclick=()=>start("extreme");
 $("dly").onclick=()=>start("daily");
 $("next").onclick=next;$("menu").onclick=home;
-$("h1").onclick=hint;$("tend").onchange=e=>store.set("lon_tend",e.target.checked?"1":"0");
-$("share").onclick=()=>{const t="Detectdle Daily "+today()+": "+G.score+"/100";try{navigator.clipboard.writeText(t);$("share").textContent="Copied"}catch(e){$("share").textContent=t}};
+$("h1").onclick=hint;
+$("share").onclick=()=>{const t=G.share||("Detectdle Daily "+today()+": "+G.score+"/100");try{navigator.clipboard.writeText(t);$("share").textContent="Copied"}catch(e){$("share").textContent=t}};
 document.querySelectorAll("#pick button").forEach(b=>b.onclick=()=>pick(+b.dataset.a));
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let AS={salt:0,saltDate:"",dailyOverride:null,specials:[]},DB=null,ISO=false;
 try{Object.assign(AS,JSON.parse(store.get("lon_st")||"{}"))}catch(e){}
 const salt=()=>AS.saltDate===today()?AS.salt:0;
-function dailyQ(){const ov=AS.dailyOverride;if(ov&&ov.date===today())return fromSpecial(ov.sc,6,{});return gen(6,rng(+today().split("-").join("")+salt()*7919))}
-function mk(d){const sp=AS.specials.filter(x=>!G.o.used.has("sp"+x.id));if(sp.length&&Math.random()<.3){const sc=sp[Math.floor(Math.random()*sp.length)];G.o.used.add("sp"+sc.id);return fromSpecial(sc,d,G.o)}return gen(d,Math.random,G.o)}
+function dailyQ(dt){dt=dt||today();const t=dt==today(),ov=AS.dailyOverride;if(t&&ov&&ov.date===dt)return fromSpecial(ov.sc,6,{});return genDet(rng(+dt.split("-").join("")+(t?salt():0)*7919))}
+function mk(d){const sp=AS.specials.filter(x=>!G.o.used.has("sp"+x.id));if(sp.length&&Math.random()<.3){const sc=sp[Math.floor(Math.random()*sp.length)];G.o.used.add("sp"+sc.id);return fromSpecial(sc,d,G.o)}return genDet(Math.random,G.mode=="extreme"?.32:Math.max(.4,.85-.07*G.round),G.mode=="extreme")}
 function fromSpecial(sc,d,o){
   const c=CAST.find(x=>x.n==sc.c)||CAST[0],lie=!!sc.lie,hb=o&&o.tend?HAB[c.n]:null,all=[...BL,...BT],nerv=new Set(BL.map(x=>x.id));
   const mom=(sc.tells||"").split(",").map(g=>g.split("+").map(x=>x.trim()).filter(x=>all.some(a=>a.id==x))).filter(g=>g.length);
@@ -411,7 +539,7 @@ function msg(t){$("amsg").textContent=t}
 function setST(d){Object.assign(AS,d);store.set("lon_st",JSON.stringify(AS))}
 function saveST(){store.set("lon_st",JSON.stringify(AS));if(DB)DB.doc("config/state").set(AS).then(()=>msg("Saved. Signed-in players will see it.")).catch(()=>msg("Saved on this device only. Only the owner can publish changes to everyone."));else msg("Saved on this device only.")}
 (async()=>{if(!window.claude)return;try{const u=await claude.use("user");ISO=u?await u.isOwner():false;UID=u?await u.id():null}catch(e){}
-try{DB=await claude.use("db");if(DB)DB.doc("config/state").onSnapshot(sn=>{if(sn.exists){setST(sn.data());if(!$("home").classList.contains("hide"))home();adm()}},()=>{})}catch(e){}})();
+try{DB=await claude.use("db");if(DB)DB.doc("config/state").onSnapshot(sn=>{if(sn.exists){setST(sn.data());if(!$("home").classList.contains("hide"))home();adm()}},()=>{});if(DB&&UID)syncMe()}catch(e){}})();
 function adm(){
   $("am").textContent=ISO?"You’re the owner, so changes publish to everyone signed in.":"Changes here reach everyone only when the owner makes them.";
   $("ads").textContent="Daily salt: "+salt()+(AS.dailyOverride&&AS.dailyOverride.date===today()?" (custom daily active)":"")+". The timer still resets at 12am ET.";
@@ -442,23 +570,199 @@ function say(t){clearInterval(TW);const b=$("claim"),f=$("face");b.style.minHeig
 const ymd=o=>{const[y,m,d]=today().split("-").map(Number);return new Date(Date.UTC(y,m-1,d+o)).toISOString().slice(0,10)};
 function streak(){let k=null;try{k=JSON.parse(store.get("lon_streak"))}catch(e){}k=k||{last:"",n:0,best:0};if(k.last!=today()&&k.last!=ymd(-1))k.n=0;return k}
 function bumpStreak(ok){const k=streak();if(k.last==today())return k;if(ok){k.n++;k.best=Math.max(k.best,k.n)}else k.n=0;k.last=today();store.set("lon_streak",JSON.stringify(k));return k}
-let UID=null,NICK=store.get("lon_nick")||"",LT="t";
-function postLB(){if(!DB||!UID||!NICK)return Promise.resolve(false);let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}if(!dd)return Promise.resolve(false);const k=streak();return DB.doc("lb/"+UID).set({n:NICK,date:dd.date,score:dd.score,streak:k.n,best:k.best}).then(()=>true).catch(()=>false)}
+let UID=null,NICK=store.get("lon_nick")||"",LT="t";if(!NICK){NICK="Guest"+(100+Math.floor(Math.random()*900));store.set("lon_nick",NICK)}
+function postLB(){if(!DB||!UID)return Promise.resolve(false);let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}if(!dd)return Promise.resolve(false);const k=streak();return DB.doc("lb/"+UID).set({n:NICK,date:dd.date,score:dd.score,streak:k.n,best:k.best,last:k.last||dd.date}).then(()=>true).catch(()=>false)}
+async function syncMe(){try{const sn=await DB.doc("lb/"+UID).get(),d=sn.exists&&sn.data();if(d){const k=streak(),rl=d.last||d.date||"";if(rl>(k.last||"")){store.set("lon_streak",JSON.stringify({last:rl,n:d.streak||0,best:Math.max(d.best||0,k.best||0)}))}else if((d.best||0)>k.best){k.best=d.best;store.set("lon_streak",JSON.stringify(k))}if(!$("home").classList.contains("hide"))home()}}catch(e){}}
 async function loadLB(tab){LT=tab;$("lbm").textContent="";$("lbl").innerHTML="";
-  if(!DB){$("lbm").textContent="The leaderboard needs a signed-in view of this page.";return}
-  try{const col=DB.collection("lb"),q=tab=="s"?col.orderBy("streak","desc").limit(15):col.where("date","==",today()).orderBy("score","desc").limit(15);
-    let rows=(await q.get()).docs.map(d=>d.data());if(tab=="s")rows=rows.filter(r=>r.streak>0&&(r.date==today()||r.date==ymd(-1)));
-    $("lbl").innerHTML=rows.length?rows.map((r,i)=>"<li>"+(i+1)+". "+esc(r.n)+" · "+(tab=="s"?"🔥 "+r.streak:r.score+" pts")+"</li>").join(""):'<li class="mut">Nobody yet</li>'}catch(e){$("lbm").textContent="Couldn’t load the leaderboard."}}
+  if(!DB){let h={};try{h=JSON.parse(store.get("lon_hist")||"{}")}catch(e){}const ks=Object.keys(h).sort().reverse().slice(0,7);$("lbl").innerHTML=ks.length?ks.map(d=>"<li>"+d+" · "+h[d]+" pts</li>").join(""):'<li class="mut">Play today’s daily to get on the board.</li>';$("lbm").textContent="The online leaderboard isn’t available here, so this shows your own recent scores.";return}
+  try{const sn=await DB.collection("lb").limit(300).get();let rows=sn.docs.map(d=>d.data());const ok=r=>r.date==today()||r.date==ymd(-1)||r.last==today()||r.last==ymd(-1);
+    rows=tab=="s"?rows.filter(r=>r.streak>0&&ok(r)).sort((a,b)=>b.streak-a.streak):rows.filter(r=>r.date==today()).sort((a,b)=>b.score-a.score);
+    $("lbl").innerHTML=rows.length?rows.slice(0,15).map((r,i)=>"<li>"+(i+1)+". "+esc(r.n)+" · "+(tab=="s"?"🔥 "+r.streak:r.score+" pts")+"</li>").join(""):'<li class="mut">Nobody yet. Finish today’s daily to be first.</li>'}catch(e){$("lbm").textContent="Couldn’t load: "+((e&&e.message)||"unknown error")}}
 function openLB(){$("lbn").value=NICK;$("lbp").classList.remove("hide");loadLB("t")}
 $("lbbtn").onclick=$("lbbtn2").onclick=openLB;$("lbx").onclick=()=>$("lbp").classList.add("hide");
 $("lbt").onclick=()=>loadLB("t");$("lbs").onclick=()=>loadLB("s");
-$("lbsv").onclick=async()=>{const v=$("lbn").value.trim().slice(0,16);if(!v){$("lbm").textContent="Pick a nickname first.";return}NICK=v;store.set("lon_nick",v);const ok=await postLB();await loadLB(LT);$("lbm").textContent=ok?"Posted.":"Nickname saved. Your score posts once you finish today’s daily."};
+$("lbsv").onclick=async()=>{if(0)return;const v=$("lbn").value.trim().slice(0,16);if(!v){$("lbm").textContent="Pick a nickname first.";return}NICK=v;store.set("lon_nick",v);const ok=await postLB();await loadLB(LT);$("lbm").textContent=ok?"Posted.":"Nickname saved. Your score posts once you finish today’s daily."};
+const QL=[{t:"Where were you?",k:"where",h:.3},{t:"Can I check your bag?",k:"bag",h:.9},{t:"When did you last see it?",k:"last",h:.6},{t:"Who else was there?",k:"who",h:.4},{t:"Can I see your phone?",k:"phone",h:.8},{t:"Say that again.",k:"again",h:.7}];
+const QK={Pixie:"Borrows everything, returns half",Dex:"Plays games until 3 a.m.",Marlo:"Notices everything",Gus:"Hates being asked twice",Zed:"Always “just passing by”",Juno:"Knows everyone’s business",Kai:"Drinks way too much espresso",Ray:"Tells very long stories",Hank:"Exaggerates every fish","Nana Pea":"Never forgets a thing",Bo:"Always has a snack",Tia:"Loves a good gossip",Leo:"Competitive about everything",Mei:"Painfully polite",Dre:"Strict about the rules",Ivy:"Late to everything"};
+const SPL=["their bag","their locker","their room","their car"],SPT=["your jacket pocket","under the couch","the lost-and-found","your other bag"];
+const MOS=["wanted to show it off","needed the cash","was jealous of you","meant to “borrow” it and kept it"],MOL=["Show it off","Needed cash","Jealousy","“Borrowed” and kept it"];
+const MOC=[i=>"Friends say they’ve been hyping your "+i+" all week",i=>"They’ve been asking what a used "+i+" is worth",i=>"They’ve complained you get all the nice stuff",i=>"They once joked about “borrowing” your "+i+" for good"];
+const ALS=["was at practice until six","was babysitting all afternoon","was on a call with a friend for two hours","was working a shift"],ALL=["At practice","Babysitting","On a call","At work"];
+const ALC=["A coach confirms they were at practice all afternoon","A neighbor says they were babysitting all day","A call log shows a two-hour call with a friend","Their manager has them on the work schedule"];
+const LF=["A friend’s photo from {ev} shows your {it} next to them","Their chat says they “borrowed” your {it} during {ev}","A security clip shows them leaving {loc} holding something shaped like your {it}","They offered to “sell” you a suspiciously familiar {it}"];
+const TF=["Their phone location puts them far from {loc} when it vanished","A timestamped chat proves they left {loc} before your {it} went missing","A friend confirms they were with them for all of {ev}"];
+CAST.push({n:"Theo",role:"little brother",sk:"#f1c9a5",hr:"#8d5524",hs:0,sh:"#4cc9f0",ac:"c"},{n:"Nia",role:"big sister",sk:"#8d5a3b",hr:"#111",hs:4,sh:"#f72585",ac:"e"},{n:"Omar",role:"lab partner",sk:"#c68642",hr:"#222",hs:0,sh:"#4361ee",ac:"g"},{n:"Sage",role:"cousin",sk:"#e0ac86",hr:"#2d6a4f",hs:1,sh:"#80b918",ac:"e"},{n:"Penny",role:"babysitter",sk:"#fbe0c8",hr:"#e76f51",hs:1,sh:"#ffafcc",ac:""},{n:"Vik",role:"bandmate",sk:"#a9714b",hr:"#111",hs:2,sh:"#ef233c",ac:"h"},{n:"Roz",role:"landlady",sk:"#f3d5bd",hr:"#cfcfcf",hs:4,sh:"#2a9d8f",ac:"g"},{n:"Cal",role:"best friend",sk:"#f1c9a5",hr:"#ffd166",hs:0,sh:"#00b4d8",ac:"c"});
+Object.assign(HAB,{Theo:"jig",Nia:"steady",Omar:"dart",Sage:"shrug",Penny:"nod",Vik:"annoy",Roz:"twitch",Cal:"tilt"});
+Object.assign(LOC,{Theo:["the treehouse","a sleepover"],Nia:["the dance studio","rehearsal"],Omar:["the science lab","a lab session"],Sage:["the campsite","a camping trip"],Penny:["the playroom","bedtime"],Vik:["the garage studio","band practice"],Roz:["the lobby","a building meeting"],Cal:["the beach","a beach day"]});
+Object.assign(QK,{Theo:"Asks “why” about everything",Nia:"Counts every beat out loud",Omar:"Corrects your grammar",Sage:"Hums when thinking",Penny:"Speaks in whispers",Vik:"Never takes off the hoodie",Roz:"Keeps a spare key for everyone",Cal:"Has a story for everything"});
+Object.assign(BG,{
+Theo:["#a6e3ff","#6dbb6a",C(80,14,8,"#ffd54a")+R(16,40,6,34,"#7a5230")+C(19,28,16,"#3fa66b")+C(8,36,10,"#2e8b57")+C(32,36,10,"#2e8b57")+R(40,44,56,4,"#a9774a")+R(44,48,3,26,"#7a5230")+R(88,48,3,26,"#7a5230")+R(50,24,40,20,"#c9954f",2)+R(56,30,10,10,"#8fd3ff")+PA("M48 24L70 10L92 24Z","#d9534f")+R(78,30,8,14,"#7a5230")],
+Nia:["#f3e9e4","#c8955c",R(4,10,92,48,"#cfe8f2",2)+R(10,16,16,38,"#fff",1,.35)+R(40,16,8,38,"#fff",1,.25)+R(4,40,92,2,"#8a5a3a")+R(10,42,2,16,"#8a5a3a")+R(86,42,2,16,"#8a5a3a")+R(2,3,8,10,"#222",1)+R(90,3,8,10,"#222",1)],
+Omar:["#e3f2f1","#b8c4c9",R(0,52,100,22,"#6b7a80")+R(0,50,100,3,"#a9b7bd")+R(12,38,8,12,"#bde0ff",1)+R(12,44,8,6,"#06d6a0",1)+R(26,34,6,16,"#bde0ff",1)+R(26,42,6,8,"#ff8fab",1)+C(44,44,6,"#ffd166",.7)+R(42,32,4,6,"#999")+R(58,10,36,26,"#fff",1)+[...Array(18).keys()].map(i=>R(61+(i%6)*5.2,14+Math.floor(i/6)*6.5,4.4,5,["#ff8fab","#ffd166","#7fd6c2"][Math.floor(i/6)])).join("")],
+Sage:["#14213d","#2d6a4f",[...Array(14).keys()].map(i=>C((i*37)%92+4,(i*23)%30+4,.7,"#fff")).join("")+C(84,14,6,"#fff3b0")+PA("M10 72L22 30L34 72Z","#1b4332")+PA("M64 72L78 24L92 72Z","#1b4332")+PA("M34 78L52 44L70 78Z","#e76f51")+PA("M52 44V78H44Z","#c9553a")+PA("M46 92Q50 80 54 92Z","#ffb703")+PA("M48 92Q50 85 52 92Z","#ff6b35")],
+Penny:["#fff0c9","#8ecae6",'<path d="M10 44Q50 -8 90 44" fill="none" stroke="#ff6b6b" stroke-width="3"/><path d="M16 44Q50 2 84 44" fill="none" stroke="#ffd43b" stroke-width="3"/><path d="M22 44Q50 12 78 44" fill="none" stroke="#51cf66" stroke-width="3"/>'+R(6,50,40,3,"#c9954f")+R(10,42,8,8,"#ff6b6b",1)+R(20,42,8,8,"#4dabf7",1)+R(15,34,8,8,"#ffd43b",1)+C(68,66,7,"#a9774a")+C(68,56,5,"#a9774a")+'<ellipse cx="50" cy="90" rx="30" ry="6" fill="#ff8fab" opacity=".5"/>'],
+Vik:["#2b2d42","#4a4e69",R(0,4,100,1.5,"#ff3d7f")+R(6,34,18,38,"#111",1)+C(15,46,5,"#555")+C(15,62,5,"#555")+R(76,40,18,32,"#111",1)+C(85,52,5,"#555")+C(44,58,8,"#c1121f")+C(30,48,6,"#ffd166")+C(58,48,6,"#ffd166")+R(40,66,8,10,"#aaa")+R(30,8,18,14,"#e63946",1)+R(56,8,18,14,"#ffb703",1)],
+Roz:["#e9d8c4","#b08968",[...Array(10).keys()].map(i=>R(8+(i%5)*10,16+Math.floor(i/5)*12,9,10,"#8d99ae",1)+R(10+(i%5)*10,19+Math.floor(i/5)*12,5,1.5,"#fff")).join("")+R(66,14,28,54,"#adb5bd",2)+R(79.5,14,1,54,"#6c757d")+R(62,34,3,6,"#ffd166",1)+R(46,56,10,14,"#8a5a3a",1)+C(51,50,9,"#3fa66b")],
+Cal:["#8fd3ff","#f4d58d",C(82,16,9,"#ffd54a")+R(0,46,100,24,"#3a9bd9")+R(0,46,100,2,"#8fd3ff")+R(70,50,1.5,26,"#7a5230")+PA("M58 52Q72 30 86 52Z","#e63946")+R(14,64,16,10,"#e9c46a",1)+R(18,58,8,6,"#e9c46a",1)+R(40,76,24,8,"#2a9d8f",1)]});
+const LAUNCH="2026-11-01";
+const num=dt=>{const[a,b,c]=dt.split("-").map(Number),[x,y,z]=LAUNCH.split("-").map(Number);return Math.round((Date.UTC(a,b-1,c)-Date.UTC(x,y-1,z))/864e5)+1};
+function genDet(r,amp,hard){
+  const P=a=>a[Math.floor(r()*a.length)],S=a=>a.map(x=>[r(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+  const c=P(CAST),it=P(ITEMS),lie=r()<.5,L=LOC[c.n],hb=HAB[c.n],f=t=>t.replace(/{it}/g,it).replace(/{loc}/g,L[0]).replace(/{ev}/g,L[1]);
+  const nv=S(BL.filter(x=>x.id!=hb)).map(x=>x.id),cm=S(BT.filter(x=>x.id!=hb)).map(x=>x.id);let ni=0,ci=0;const N=()=>nv[ni++%nv.length],K=()=>cm[ci++%cm.length];
+  const mi=Math.floor(r()*4),si=Math.floor(r()*4),pf=f(P(lie?LF:TF)),hq=Math.floor(r()*6),spot=(lie?SPL:SPT)[si];
+  const react=QL.map((q,i)=>{const ids=[];
+    if(lie){const n=hard?(q.h>=.7?1:(r()<.35?1:0)):q.h>=.7?(r()<.6?2:1):q.h>=.5?1:(r()<.3?1:0);for(let k=0;k<n;k++)ids.push(N());if(!n)ids.push(K())}
+    else{ids.push(K());if(i==hq||(hard&&r()<.4))ids.push(N());else if(q.h>=.7&&r()<.5)ids.push(K())}
+    return ids});
+  const rp=lie?{where:{say:"“Around "+L[0]+", mostly. I think.”",clue:"They couldn’t say exactly where they were."},bag:{say:"“It’s a total mess in there. Trust me.”",clue:"They kept "+spot+" out of your reach."},last:{say:"“It was fine when I… when you last had it.”",clue:"They almost admitted handling it.",slip:1},who:{say:"“Just people. I don’t really remember.”",clue:MOC[mi](it)},phone:{say:"“It’s dead. Sorry.”",clue:pf},again:{say:"“I wasn’t even at "+L[0]+". I was… home.”",clue:"Their story changed from before.",slip:1}}
+  :{where:{say:"“I "+ALS[mi]+".”",clue:"They gave a specific place and time."},bag:{say:"“Go ahead, look.”",clue:"They handed over their bag. Your "+it+" wasn’t in it."},last:{say:"“Last I saw it, it was by "+spot+".”",clue:"They pointed to a specific spot."},who:{say:"“Ask them, they’ll back me up.”",clue:ALC[mi]},phone:{say:"“Sure, here.”",clue:pf},again:{say:"“Same as before: I "+ALS[mi]+".”",clue:"Their story matched exactly."}};
+  return {c,d:6,lie,it,cl:[],tells:[],mom:[[]],hb,habit:c.n+" "+HB[hb],a:lie?0:1,setup:P(ST)(it,L[0],L[1])+" You ask your "+c.role+", "+c.n+".",claim:P(CL)(it,L[0],L[1]),why:"",dx:{react,rp,mi,si},amp:amp||.6};
+}
+function render(){render0();if(G&&G.det)dSetup()}
+function dSetup(){const q=G.q,m=G.mode;clearInterval(CT);$("face").dataset.t=q.hb||"";$("face").style.setProperty("--a",q.amp||.6);
+  G.maxq=m=="extreme"?4:5;
+  $("lvl").textContent=m=="daily"?(G.arch?"Archive":"Daily case"):m=="extreme"?"Extreme":m=="duel"?"1v1 · round "+(G.dr+1)+" of 3":"Endless · case "+(G.round+1);$("lvl").className="badge"+(m=="daily"?" d":m=="extreme"?" x":"");
+  $("hints").classList.add("hide");$("pick").classList.add("hide");$("qs").classList.remove("hide");$("acc").classList.remove("hide");
+  $("clues").innerHTML="";$("setup").textContent=q.setup;$("hab").classList.remove("hide");$("hab").textContent=(q.habit?"Dossier: "+q.habit+", honest or not.\n":"")+"Known for: "+(QK[q.c.n]||"keeping quiet")+".";
+  $("nt").textContent=m=="extreme"?"30 seconds for the whole case.":"";
+  G.asked=0;G.log=[];G.grid=[];$("am2").textContent="";renderQs();accSet(null)}
+function renderQs(){const dn=G.log.map(x=>x.i);$("qn").textContent="Questions left: "+(G.maxq-G.asked)+" of "+G.maxq;$("qb").innerHTML=QL.map((x,i)=>'<button data-k="'+i+'"'+(dn.includes(i)||G.asked>=G.maxq?" disabled":"")+">"+["📍","🎒","🕒","👥","📱","🔁"][i]+" "+x.t+"</button>").join("")}
+function accSet(p){G.p1=p;document.querySelectorAll("#acc [data-p]").forEach(b=>b.classList.toggle("sel",+b.dataset.p===p));const o=(h,a)=>'<option value="">'+h+"</option>"+a.map((x,i)=>'<option value="'+i+'">'+x+"</option>").join(""),dx=G.q.dx;$("a2").classList.toggle("hide",!dx);$("a3").classList.toggle("hide",!dx);$("a2").innerHTML=o(p==1?"Alibi…":"Motive…",p==1?ALL:MOL);$("a3").innerHTML=o(p==1?"Where it really is…":"Where it’s hidden…",p==1?SPT:SPL)}
+function dAsk(i){if(G.answered||G.asked>=G.maxq||G.log.some(x=>x.i==i))return;const q=G.q,dx=q.dx;let rp,ids;
+  if(dx){rp=dx.rp[QL[i].k];ids=dx.react[i]}else{rp={say:"“Go ahead and ask.”",clue:(q.cl[G.asked]||{}).t};ids=q.mom[(G.asked*2)%q.mom.length]||[]}
+  G.asked++;G.log.push({i});
+  const tl=[q.hb?"🟨":"",...ids.map(id=>BL.some(b=>b.id==id)?"🟩":"⬜")].join("")||"⬜";G.grid.push(tl);
+  $("face").dataset.t=[q.hb,...ids].filter(Boolean).join(" ");setTimeout(()=>{if(!G.answered)$("face").dataset.t=q.hb||""},2800);
+  say(rp.say);
+  $("clues").insertAdjacentHTML("beforeend","<li><b>"+esc(QL[i].t)+"</b><br>"+esc(rp.say)+(rp.clue?"<br><em>"+esc(rp.clue)+"</em>":"")+'<br><span class="tiles">'+tl+"</span></li>");
+  renderQs()}
+function timeUp(){if(!G.answered)lock(true)}
+function lock(force){const q=G.q,dx=q.dx,m=G.mode;if(G.answered)return;if(!force&&(G.p1==null||(dx&&($("a2").value===""||$("a3").value==="")))){$("am2").textContent="Pick all three parts first.";return}
+  G.answered=true;clearInterval(CT);clearInterval(TW);$("face").classList.remove("say");$("claim").textContent=q.claim;
+  if(m=="extreme"){clearTimeout(G.tt);clearInterval(G.tk);G.left=Math.max(0,30-(Date.now()-G.t0)/1000);const b=$("tbar"),w=getComputedStyle(b).width;b.style.transition="none";b.style.width=w}
+  const ok1=!force&&G.p1===q.a,a=[ok1,dx?ok1&&+$("a2").value===dx.mi:null,dx?ok1&&+$("a3").value===dx.si:null],tot=dx?3:1;
+  G.parts=a.filter(x=>x).length;G.tot=tot;G.marks=a.map(x=>x===null?"":x?"✅":"❌").join("");
+  let cs=G.parts?Math.round(G.parts/tot*90)+(G.maxq-G.asked)*2:0;if(m=="extreme"&&G.parts)cs+=Math.round(G.left)*2;
+  const solved=G.parts>=Math.min(2,tot);
+  if(m=="daily"||m=="duel")G.score=cs;else{G.score+=cs;G.total++;if(solved){G.right++;G.streak++;G.best=Math.max(G.best,G.streak)}else{G.streak=0;G.lives--}}
+  upd();
+  $("face").dataset.t="";$("face").innerHTML=avatar(q.c,q.lie?"l":"t");$("prop").className="prop "+(q.lie?"caught":"safe");
+  solved?SFX.ok():SFX.no();if(q.lie)setTimeout(SFX.caught,380);
+  let h=(force?'<b class="no">Time’s up.</b> ':solved?'<b class="ok">Nice read.</b> ':'<b class="no">Not quite.</b> ')+"Verdict "+(a[0]?"✅":"❌")+(dx?" · "+(q.lie?"Motive ":"Alibi ")+(a[1]?"✅":"❌")+" · "+(q.lie?"Hiding spot ":"Where it was ")+(a[2]?"✅":"❌"):"")+(m!="daily"?" · +"+cs+" pts":"")+"<br>It was a <b>"+(q.lie?"lie":"truth")+"</b>.";
+  if(dx){h+=" "+esc(q.c.n)+" "+(q.lie?MOS[dx.mi]+" and hid it in "+SPL[dx.si]+".":ALS[dx.mi]+", and your "+esc(q.it)+" was actually in "+SPT[dx.si]+".");
+    const sl=G.log.map(x=>dx.rp[QL[x.i].k]).filter(r=>r.slip);if(sl.length)h+="<br>⚠ Slips you heard: "+sl.map(r=>esc(r.say)).join(" ")}
+  $("qs").classList.add("hide");$("acc").classList.add("hide");$("reveal").classList.remove("hide");$("reveal").innerHTML=h;if(m=="duel"){G.dt=(Date.now()-G.t0)/1000;duelSubmit(cs);$("next").classList.add("hide");duelTick();return}$("next").textContent=(m=="daily"||G.lives<1)?"See results":"Next case";$("next").classList.remove("hide");$("next").focus()}
+function startArch(d){G={mode:"daily",det:true,arch:d,lives:1,score:100,streak:0,best:0,round:0,right:0,total:0,asked:0,grid:[],log:[]};G.q=dailyQ(d);show("play");render()}
+function dFinish(){show("end");clearInterval(CT);const ar=G.arch,tot=G.tot||3;
+  G.share="Detectdle #"+num(ar||today())+" "+(G.marks||"")+" "+G.asked+"/5"+(ar?" (archive)":"")+"\n"+G.grid.join("\n");
+  if(!G.locked){if(ar){let m={};try{m=JSON.parse(store.get("lon_arch")||"{}")}catch(e){}m[ar]={score:G.score,parts:G.parts};store.set("lon_arch",JSON.stringify(m))}else{store.set("lon_daily",JSON.stringify({date:today(),score:G.score,salt:salt(),parts:G.parts,tot,grid:G.grid,asked:G.asked,marks:G.marks}));bumpStreak(G.parts>=Math.min(2,tot));try{const h=JSON.parse(store.get("lon_hist")||"{}");h[today()]=G.score;store.set("lon_hist",JSON.stringify(h))}catch(e){}postLB()}}
+  const sk=streak();
+  $("fs").textContent=G.score;$("fc").textContent=G.parts+"/"+tot;$("fc").nextSibling.textContent="parts right";$("fb").textContent=G.asked+"/5";$("fb").nextSibling.textContent="questions";
+  $("rank").textContent=G.parts>=tot?"Case cracked":G.parts>=2?"Good read":G.parts==1?"Almost":"Fooled";
+  $("verdict").textContent=ar?"Archive case: it doesn’t affect your streak or the leaderboard.":"🔥 Daily streak: "+sk.n+" (best "+sk.best+")";$("gridp").textContent=G.share;$("gridp").classList.remove("hide");
+  $("share").classList.remove("hide");$("share").textContent="Copy result";$("cde").classList.toggle("hide",!!ar)}
+function openArch(){let m={};try{m=JSON.parse(store.get("lon_arch")||"{}")}catch(e){}const rows=[];for(let o=-1;o>=-30;o--){const d=ymd(o);if(d<LAUNCH)break;rows.push('<li><button data-d="'+d+'">#'+num(d)+" · "+d+(m[d]?" · "+m[d].score+" pts":"")+"</button></li>")}$("arl").innerHTML=rows.length?rows.join(""):'<li class="mut">No past cases yet. Check back tomorrow.</li>';$("arp").classList.remove("hide")}
+$("arbtn").onclick=openArch;$("arx").onclick=()=>$("arp").classList.add("hide");
+$("arl").onclick=e=>{const d=e.target.dataset.d;if(d){$("arp").classList.add("hide");startArch(d)}};
+$("qb").onclick=e=>{const b=e.target.closest("[data-k]");if(b)dAsk(+b.dataset.k)};
+$("acc").onclick=e=>{const b=e.target.closest("[data-p]");if(b)accSet(+b.dataset.p)};
+$("lock").onclick=lock;
+$("stbtn").onclick=()=>{acct();$("snd").checked=!MUTE;$("stp").classList.remove("hide")};
+$("stx").onclick=()=>$("stp").classList.add("hide");
+$("snd").onchange=e=>{MUTE=!e.target.checked;store.set("lon_mute",MUTE?"1":"0");$("mute").textContent=MUTE?"🔇":"🔊"};
+let HC=null;
+function homeChar(){const c=CAST[Math.floor(Math.random()*CAST.length)],el=$("hc"),q=["I never touched it.","Wasn’t even there.","Ask anyone.","Why would I?","It wasn’t me."];
+  $("hbg").innerHTML=bgSvg(c.n);el.innerHTML=avatar(c);$("hcap").textContent=c.n+": “"+q[Math.floor(Math.random()*q.length)]+"”";
+  const ids=[...BL,...BT].map(x=>x.id);clearInterval(HC);let i=0;const go=()=>{el.dataset.t=ids[Math.floor(Math.random()*ids.length)];if(++i%4==0)homeChar()};go();HC=setInterval(go,2200)}
+$("pol").onclick=homeChar;
+function acct(){$("acn").textContent=NICK+(UID?" · signed in":" · guest");$("acs").textContent=UID?"Your streak and daily score sync to the leaderboard.":"Scores stay on this device. Sign in with your Claude account to join the leaderboard.";$("snk").value=NICK}
+$("snks").onclick=()=>{const v=$("snk").value.trim().slice(0,16);if(!v)return;NICK=v;store.set("lon_nick",v);postLB();acct()};
+const TS=[
+ {h:"Someone’s lying",t:"Your stuff went missing and a suspect says they didn’t take it. Is that true?",v:()=>avatar(CAST[4]),tl:"dart"},
+ {h:"Read the tells",t:"Watch how they move. Every character has a habit that means nothing.",v:()=>avatar(CAST[0])+'<div class="lgd"><span>🟩 stress tell</span><span>🟨 their habit</span><span>⬜ calm</span></div>',tl:"sweat"},
+ {h:"Ask, then accuse",t:"Ask up to 5 questions, then pick guilty or innocent, the motive or alibi, and where it is.",v:()=>'<div class="lgd"><span>📍 Where were you?</span><span>🎒 Check your bag</span><span>📱 Your phone?</span></div>',tl:""},
+ {h:"Three ways to play",t:"Daily is one shared case. Endless runs until you lose 3 lives. Extreme is 30 seconds. 1v1 races a friend on the same cases.",v:()=>'<div class="lgd"><span>Daily</span><span>Endless</span><span>Extreme</span><span>1v1</span></div>',tl:""}];
+let TI=0;
+function showTut(i){TI=i;const t=TS[i],v=$("tuv");$("tov").classList.remove("hide");v.innerHTML=t.v();v.dataset.t=t.tl;v.style.setProperty("--a",1);$("tuh").textContent=t.h;$("tut2").textContent=t.t;$("tub").style.visibility=i?"visible":"hidden";$("tun").textContent=i==TS.length-1?"Let’s go":"Next";$("tud").innerHTML=TS.map((_,k)=>'<i class="'+(k==i?"on":"")+'"></i>').join("")}
+function seen(){store.set("lon_seen","1")}
+$("tun").onclick=()=>{if(TI<TS.length-1)showTut(TI+1);else{seen();$("tov").classList.add("hide")}};
+$("tub").onclick=()=>showTut(TI-1);
+$("wy").onclick=()=>{$("wel").classList.add("hide");seen();showTut(0)};
+$("wn").onclick=()=>{$("wel").classList.add("hide");seen()};
+$("tutbtn").onclick=()=>{$("stp").classList.add("hide");showTut(0)};
+let DU=null;
+const RC="ABCDEFGHJKLMNPQRSTUVWXYZ",rcode=()=>[0,1,2,3].map(()=>RC[Math.floor(Math.random()*RC.length)]).join("");
+function dmsg(t){$("dlm").textContent=t}
+function leaveDuel(){if(DU&&typeof DU.off=="function")try{DU.off()}catch(e){}DU=null;$("dw").classList.add("hide")}
+function openDuel(){$("dlp").classList.remove("hide");dmsg("");const inl=!!DU;$("dlmenu").classList.toggle("hide",inl);$("dllob").classList.toggle("hide",!inl);if(inl)duelTick()}
+async function duelCreate(){if(!DB||!UID)return dmsg("1v1 needs the online connection. Check your internet.");
+  try{let code="",n=0;while(n++<6){code=rcode();const sn=await DB.doc("rooms/"+code).get();if(!sn.exists)break}
+    await DB.doc("rooms/"+code).set({seed:1+Math.floor(Math.random()*1e6),host:UID,created:Date.now(),p:{[UID]:{n:NICK}}});duelListen(code)}catch(e){dmsg("Couldn’t create a room. Check your connection.")}}
+async function duelJoin(){const code=$("dlc").value.trim().toUpperCase();if(code.length!=4)return dmsg("Enter the 4-letter code.");if(!DB||!UID)return dmsg("1v1 needs the online connection. Check your internet.");
+  try{const sn=await DB.doc("rooms/"+code).get();if(!sn.exists)return dmsg("No room with that code.");const ids=Object.keys(sn.data().p||{});if(ids.length>=2&&!ids.includes(UID))return dmsg("That room is full.");
+    await DB.doc("rooms/"+code).update({p:{[UID]:{n:NICK}}});duelListen(code)}catch(e){dmsg("Couldn’t join: "+((e&&e.message)||"error"))}}
+function duelListen(code){leaveDuel();DU={code,room:null,begun:false,starting:false,off:null};
+  DU.off=DB.doc("rooms/"+code).onSnapshot(sn=>{if(sn.exists&&DU&&DU.code==code){DU.room=sn.data();duelTick()}},()=>dmsg("Lost connection to the room."));
+  $("dlmenu").classList.add("hide");$("dllob").classList.remove("hide");$("dlcode").textContent=code;dmsg("")}
+function duelScore(r,opp){let w=0,l=0,my=0,op=0,done=0;for(let k=0;k<3;k++){const a=((r.p[UID]||{}).res||{})[k],b=((r.p[opp]||{}).res||{})[k];if(!a||!b)break;done++;my+=a.s;op+=b.s;if(a.s>b.s||(a.s==b.s&&a.t<b.t))w++;else if(b.s>a.s||(a.s==b.s&&b.t<a.t))l++}return{w,l,my,op,done,over:w==2||l==2||done==3}}
+function duelTick(){if(!DU||!DU.room)return;const r=DU.room,ps=r.p||{},ids=Object.keys(ps),opp=ids.find(i=>i!=UID);
+  $("dlpl").textContent=ids.map(i=>(ps[i].n||"Guest")+(i==UID?" (you)":"")).join("  vs  ");
+  $("dlst").textContent=ids.length<2?"Waiting for an opponent. Share the code.":r.started?"Match on.":"Opponent found. Starting…";
+  if(ids.length==2&&!r.started&&r.host==UID&&!DU.starting){DU.starting=true;DB.doc("rooms/"+DU.code).update({started:true}).catch(()=>dmsg("Couldn’t start the match."))}
+  if(!r.started||!opp)return;
+  if(!DU.begun){DU.begun=true;return duelStartRound(0)}
+  if(G&&G.mode=="duel"&&G.answered){const sc=duelScore(r,opp),nm=ps[opp].n||"Opponent",a=((ps[UID]||{}).res||{})[G.dr],b=((ps[opp]||{}).res||{})[G.dr];DU.sc=sc;DU.opp=opp;$("dw").classList.remove("hide");
+    if(a&&b){const win=a.s>b.s||(a.s==b.s&&a.t<b.t),dr=a.s==b.s&&a.t==b.t;
+      $("dw").textContent=(dr?"Draw":win?"You take the round":nm+" takes the round")+" · you "+a.s+" ("+a.parts+"/"+(G.tot||3)+", "+a.t+"s) vs "+nm+" "+b.s+" ("+b.parts+"/"+(G.tot||3)+", "+b.t+"s) · rounds "+sc.w+"-"+sc.l;
+      $("next").textContent=sc.over?"See match result":"Next round";$("next").classList.remove("hide")}
+    else{$("dw").textContent="Waiting for "+nm+" to finish…";$("next").classList.add("hide")}}}
+function duelStartRound(k){$("dlp").classList.add("hide");const r=DU.room;
+  G={mode:"duel",det:true,dr:k,lives:9,score:0,streak:0,best:0,round:0,right:0,total:0,asked:0,grid:[],log:[],t0:Date.now(),o:{used:new Set()}};
+  G.q=genDet(rng(r.seed*31+k),.55);show("play");$("dw").classList.add("hide");render()}
+function duelSubmit(cs){if(!DU)return;DB.doc("rooms/"+DU.code).update({p:{[UID]:{res:{[G.dr]:{s:cs,parts:G.parts,asked:G.asked,t:Math.round(G.dt)}}}}}).catch(()=>{$("dw").classList.remove("hide");$("dw").textContent="Couldn’t send your result. Check your connection."})}
+function duelNext(){if(!DU||!DU.sc)return;if(DU.sc.over)return duelFinish();duelStartRound(G.dr+1)}
+function duelFinish(){const sc=DU.sc,nm=((DU.room.p[DU.opp]||{}).n)||"Opponent";leaveDuel();show("end");clearInterval(CT);
+  ["gridp","share","cde"].forEach(i=>$(i).classList.add("hide"));
+  $("rank").textContent=sc.w==sc.l?"Draw":sc.w>sc.l?"You win":nm+" wins";
+  $("fs").textContent=sc.my;$("fc").textContent=sc.w+"-"+sc.l;$("fc").nextSibling.textContent="rounds";$("fb").textContent=sc.op;$("fb").nextSibling.textContent=nm+" points";
+  $("verdict").textContent="Best of 3 on the same cases."}
+$("dubtn").onclick=openDuel;$("dlx").onclick=()=>$("dlp").classList.add("hide");
+$("dlnew").onclick=duelCreate;$("dljoin").onclick=duelJoin;
+$("dlleave").onclick=()=>{leaveDuel();$("dllob").classList.add("hide");$("dlmenu").classList.remove("hide")};
+$("dlcode").onclick=()=>{try{navigator.clipboard.writeText($("dlcode").textContent);dmsg("Code copied.")}catch(e){}};
 const pad=n=>String(n).padStart(2,"0");
 function left(){const p=new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"numeric",second:"numeric",hourCycle:"h23"}).formatToParts(new Date()),g=t=>+p.find(x=>x.type==t).value;return 86400-(g("hour")*3600+g("minute")*60+g("second"))}
 let DK=today();
-function tick(){const t=left();document.querySelectorAll(".cdp").forEach(e=>e.textContent="Next daily case in "+pad(Math.floor(t/3600))+":"+pad(Math.floor(t%3600/60))+":"+pad(t%60)+" (resets 12am ET / 9pm PT)");if(today()!==DK){DK=today();if(!$("home").classList.contains("hide"))home()}}
+function tick(){const t=left();document.querySelectorAll(".cdp").forEach(e=>e.textContent="Next case in "+pad(Math.floor(t/3600))+":"+pad(Math.floor(t%3600/60))+":"+pad(t%60)+" · resets 12am ET");if(today()!==DK){DK=today();if(!$("home").classList.contains("hide"))home()}}
 tick();setInterval(tick,1000);
 home();
+if(store.get("lon_seen")!="1")setTimeout(()=>$("wel").classList.remove("hide"),700);
+// ---------- ONLINE SETUP (Firebase). Paste your project's web config here. Leave apiKey empty to stay offline-only.
+const FB={apiKey:"",authDomain:"",projectId:"",appId:""};
+const ADMIN_UID="";
+let FBU=null;
+const ldjs=u=>new Promise((a,b)=>{const e=document.createElement("script");e.src=u;e.onload=a;e.onerror=b;document.head.appendChild(e)});
+const flat=(o,p,r)=>{r=r||{};for(const k in o){const v=o[k],key=p?p+"."+k:k;if(v&&typeof v=="object"&&!Array.isArray(v)&&Object.keys(v).length)flat(v,key,r);else r[key]=v}return r};
+function watchCfg(){DB.doc("config/state").onSnapshot(sn=>{if(sn.exists){setST(sn.data());if(!$("home").classList.contains("hide"))home();adm()}},()=>{})}
+acct=function(){const g=FBU&&!FBU.isAnonymous;$("acn").textContent=NICK+" · "+(g?"signed in with Google":"guest");
+  $("acs").textContent=DB?(g?"Your streak and scores sync to the leaderboard.":"You’re on the leaderboard as a guest. Sign in with Google to keep your streak on any device."):"Scores and streaks are saved on this device.";
+  $("snk").value=NICK;$("gbtn").textContent=g?"Sign out":"Sign in with Google";$("gbtn").classList.toggle("hide",!DB);$("uidl").textContent=(DB&&UID&&!ADMIN_UID)?"Your ID (for admin setup): "+UID:""};
+$("gbtn").onclick=async()=>{try{const a=firebase.auth();if(FBU&&!FBU.isAnonymous){await a.signOut();return}const pr=new firebase.auth.GoogleAuthProvider();
+  try{await a.currentUser.linkWithPopup(pr)}catch(e){if(e.code=="auth/credential-already-in-use"||e.code=="auth/email-already-in-use")await a.signInWithPopup(pr);else throw e}
+  FBU=a.currentUser;UID=FBU.uid;ISO=!!ADMIN_UID&&UID==ADMIN_UID;syncMe();acct()}catch(e){$("acs").textContent="Sign-in didn’t finish: "+(e.message||e.code)}};
+async function fbInit(){
+  if(window.claude||!FB.apiKey)return;
+  try{const V="https://www.gstatic.com/firebasejs/10.12.2/firebase-";await ldjs(V+"app-compat.js");await Promise.all([ldjs(V+"auth-compat.js"),ldjs(V+"firestore-compat.js")]);
+    firebase.initializeApp(FB);const au=firebase.auth(),fs=firebase.firestore();
+    DB={doc:p=>{const r=fs.doc(p);return{get:()=>r.get(),set:d=>r.set(d),update:d=>r.update(flat(d)),onSnapshot:(a,b)=>r.onSnapshot(a,b)}},collection:c=>fs.collection(c)};
+    let first=true;
+    au.onAuthStateChanged(async u=>{if(!u){try{await au.signInAnonymously()}catch(e){}return}
+      FBU=u;UID=u.uid;ISO=!!ADMIN_UID&&UID==ADMIN_UID;$("dubtn").style.display="";if(first){first=false;watchCfg()}syncMe();acct()})
+  }catch(e){DB=null}
+}
+if(!window.claude)$("dubtn").style.display="none";
+acct();fbInit();
 </script>
 </body>
 </html>
