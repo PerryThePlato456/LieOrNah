@@ -764,7 +764,6 @@ async function fbInit(){
       FBU=u;UID=u.uid;ISO=!!ADMIN_UID&&UID==ADMIN_UID;$("dubtn").style.display="";if(first){first=false;watchCfg()}syncMe();acct()})
   }catch(e){DB=null}
 }
-if(!window.claude)$("dubtn").style.display="none";
 acct();fbInit();
 </script>
 </body>
