@@ -14,7 +14,10 @@
 <meta name="twitter:description" content="Can you spot who’s lying? A new daily case every day, plus endless and extreme modes.">
 <meta name="theme-color" content="#1b1740">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"Detectdle","description":"A free daily lie detector game: read animated characters’ body language, weigh the clues, and decide whether they are telling the truth.","genre":["Puzzle","Casual"],"applicationCategory":"Game","playMode":"SinglePlayer","isAccessibleForFree":true}</script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Special+Elite&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Fraunces:wght@600;800&family=Special+Elite&family=Caveat:wght@600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Fraunces:wght@600;800&family=Special+Elite&family=Caveat:wght@600&display=swap"></noscript>
+<link rel="preconnect" href="https://www.gstatic.com">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='27' cy='27' r='17' fill='%23ffb703' stroke='%231b1740' stroke-width='5'/%3E%3Cpath d='M40 40L56 56' stroke='%231b1740' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 :root{--bg:#e9e6ff;--ink:#1b1740;--card:#fff;--soft:#d8d3ff;--lie:#ff3d7f;--truth:#0f9d8a;--mut:#5a5680;--gold:#ffb703;
@@ -435,7 +438,7 @@ function home(){
   show("home");clearInterval(CT);leaveDuel();clearTimeout(G&&G.tt);clearInterval(G&&G.tk);const sk=streak();$("stk").textContent=sk.n?"🔥 "+sk.n+"-day streak"+(sk.best>sk.n?" · best "+sk.best:""):(sk.best?"Best streak "+sk.best:"");
     const b=store.get("lon_best"),xb=store.get("lon_xbest");$("best").textContent=(b?"Endless best "+b:"")+(b&&xb?" · ":"")+(xb?"Extreme best "+xb:"");
   let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}
-  const dn=dd&&dd.date===today()&&(dd.salt||0)===salt();$("dst").textContent=dn?"Filed today · "+dd.score+"/100":"5 questions, 1 accusation";$("fst").textContent=dn?(dd.parts>=2?"SOLVED":"CLOSED"):"OPEN";$("fst").classList.toggle("done",!!dn&&dd.parts>=2);$("dno").textContent=num(today());$("nof").classList.toggle("hide",!!($("stk").textContent||$("best").textContent));homeChar();
+  const dn=dd&&dd.date===today()&&(dd.salt||0)===salt();$("dst").textContent=dn?"Filed today · "+dd.score+"/100":"5 questions, 1 accusation";$("fst").textContent=dn?(dd.parts>=1?"SOLVED":"CLOSED"):"OPEN";$("fst").classList.toggle("done",!!dn&&dd.parts>=1);$("dno").textContent=num(today());$("nof").classList.toggle("hide",!!($("stk").textContent||$("best").textContent));homeChar();
 }
 function start(mode){
   if(mode=="daily"){let dd=null;try{dd=JSON.parse(store.get("lon_daily"))}catch(e){}if(dd&&dd.date===today()&&(dd.salt||0)===salt()){G={mode,det:true,locked:true,lives:0,score:dd.score,streak:0,best:0,round:0,right:0,total:1,parts:dd.parts||0,tot:dd.tot||3,grid:dd.grid||[],asked:dd.asked||0,marks:dd.marks||""};return finish()}}
@@ -644,19 +647,19 @@ function lock(force){const q=G.q,dx=q.dx,m=G.mode;if(G.answered)return;if(!force
   const ok1=!force&&G.p1===q.a,a=[ok1,dx?ok1&&+$("a2").value===dx.mi:null,dx?ok1&&+$("a3").value===dx.si:null],tot=dx?3:1;
   G.parts=a.filter(x=>x).length;G.tot=tot;G.marks=a.map(x=>x===null?"":x?"✅":"❌").join("");
   let cs=G.parts?Math.round(G.parts/tot*90)+(G.maxq-G.asked)*2:0;if(m=="extreme"&&G.parts)cs+=Math.round(G.left)*2;
-  const solved=G.parts>=Math.min(2,tot);
+  const solved=G.parts>=1;
   if(m=="daily"||m=="duel")G.score=cs;else{G.score+=cs;G.total++;if(solved){G.right++;G.streak++;G.best=Math.max(G.best,G.streak)}else{G.streak=0;G.lives--}}
   upd();
   $("face").dataset.t="";$("face").innerHTML=avatar(q.c,q.lie?"l":"t");$("prop").className="prop "+(q.lie?"caught":"safe");
   solved?SFX.ok():SFX.no();if(q.lie)setTimeout(SFX.caught,380);
-  let h=(force?'<b class="no">Time’s up.</b> ':solved?'<b class="ok">Nice read.</b> ':'<b class="no">Not quite.</b> ')+"Verdict "+(a[0]?"✅":"❌")+(dx?" · "+(q.lie?"Motive ":"Alibi ")+(a[1]?"✅":"❌")+" · "+(q.lie?"Hiding spot ":"Where it was ")+(a[2]?"✅":"❌"):"")+(m!="daily"?" · +"+cs+" pts":"")+"<br>It was a <b>"+(q.lie?"lie":"truth")+"</b>.";
+  let h=(force?'<b class="no">Time’s up.</b> ':G.parts>=tot?'<b class="ok">Case cracked.</b> ':solved?'<b class="ok">Right verdict, but you missed '+(tot-G.parts)+' detail'+(tot-G.parts>1?"s":"")+".</b> ":'<b class="no">Wrong verdict.</b> ')+"Verdict "+(a[0]?"✅":"❌")+(dx?" · "+(q.lie?"Motive ":"Alibi ")+(a[1]?"✅":"❌")+" · "+(q.lie?"Hiding spot ":"Where it was ")+(a[2]?"✅":"❌"):"")+(m!="daily"?" · +"+cs+" pts":"")+"<br>It was a <b>"+(q.lie?"lie":"truth")+"</b>.";
   if(dx){h+=" "+esc(q.c.n)+" "+(q.lie?MOS[dx.mi]+" and hid it in "+SPL[dx.si]+".":ALS[dx.mi]+", and your "+esc(q.it)+" was actually in "+SPT[dx.si]+".");
     const sl=G.log.map(x=>dx.rp[QL[x.i].k]).filter(r=>r.slip);if(sl.length)h+="<br>⚠ Slips you heard: "+sl.map(r=>esc(r.say)).join(" ")}
   $("qs").classList.add("hide");$("acc").classList.add("hide");$("reveal").classList.remove("hide");$("reveal").innerHTML=h;if(m=="duel"){G.dt=(Date.now()-G.t0)/1000;duelSubmit(cs);$("next").classList.add("hide");duelTick();return}$("next").textContent=(m=="daily"||G.lives<1)?"See results":"Next case";$("next").classList.remove("hide");$("next").focus()}
 function startArch(d){G={mode:"daily",det:true,arch:d,lives:1,score:100,streak:0,best:0,round:0,right:0,total:0,asked:0,grid:[],log:[]};G.q=dailyQ(d);show("play");render()}
 function dFinish(){show("end");clearInterval(CT);const ar=G.arch,tot=G.tot||3;
   G.share="Detectdle #"+num(ar||today())+" "+(G.marks||"")+" "+G.asked+"/5"+(ar?" (archive)":"")+"\n"+G.grid.join("\n");
-  if(!G.locked){if(ar){let m={};try{m=JSON.parse(store.get("lon_arch")||"{}")}catch(e){}m[ar]={score:G.score,parts:G.parts};store.set("lon_arch",JSON.stringify(m))}else{store.set("lon_daily",JSON.stringify({date:today(),score:G.score,salt:salt(),parts:G.parts,tot,grid:G.grid,asked:G.asked,marks:G.marks}));bumpStreak(G.parts>=Math.min(2,tot));try{const h=JSON.parse(store.get("lon_hist")||"{}");h[today()]=G.score;store.set("lon_hist",JSON.stringify(h))}catch(e){}postLB()}}
+  if(!G.locked){if(ar){let m={};try{m=JSON.parse(store.get("lon_arch")||"{}")}catch(e){}m[ar]={score:G.score,parts:G.parts};store.set("lon_arch",JSON.stringify(m))}else{store.set("lon_daily",JSON.stringify({date:today(),score:G.score,salt:salt(),parts:G.parts,tot,grid:G.grid,asked:G.asked,marks:G.marks}));bumpStreak(G.parts>=1);try{const h=JSON.parse(store.get("lon_hist")||"{}");h[today()]=G.score;store.set("lon_hist",JSON.stringify(h))}catch(e){}postLB()}}
   const sk=streak();
   $("fs").textContent=G.score;$("fc").textContent=G.parts+"/"+tot;$("fc").nextSibling.textContent="parts right";$("fb").textContent=G.asked+"/5";$("fb").nextSibling.textContent="questions";
   $("rank").textContent=G.parts>=tot?"Case cracked":G.parts>=2?"Good read":G.parts==1?"Almost":"Fooled";
@@ -667,7 +670,7 @@ $("arbtn").onclick=openArch;$("arx").onclick=()=>$("arp").classList.add("hide");
 $("arl").onclick=e=>{const d=e.target.dataset.d;if(d){$("arp").classList.add("hide");startArch(d)}};
 $("qb").onclick=e=>{const b=e.target.closest("[data-k]");if(b)dAsk(+b.dataset.k)};
 $("acc").onclick=e=>{const b=e.target.closest("[data-p]");if(b)accSet(+b.dataset.p)};
-$("lock").onclick=lock;
+$("lock").onclick=()=>lock();
 $("stbtn").onclick=()=>{acct();$("snd").checked=!MUTE;$("stp").classList.remove("hide")};
 $("stx").onclick=()=>$("stp").classList.add("hide");
 $("snd").onchange=e=>{MUTE=!e.target.checked;store.set("lon_mute",MUTE?"1":"0");$("mute").textContent=MUTE?"🔇":"🔊"};
@@ -742,7 +745,7 @@ if(store.get("lon_seen")!="1")setTimeout(()=>$("wel").classList.remove("hide"),7
 const FB={apiKey:"",authDomain:"",projectId:"",appId:""};
 const ADMIN_UID="";
 let FBU=null;
-const ldjs=u=>new Promise((a,b)=>{const e=document.createElement("script");e.src=u;e.onload=a;e.onerror=b;document.head.appendChild(e)});
+const ldjs=u=>new Promise((a,b)=>{const e=document.createElement("script");e.src=u;e.async=false;e.onload=a;e.onerror=b;document.head.appendChild(e)});
 const flat=(o,p,r)=>{r=r||{};for(const k in o){const v=o[k],key=p?p+"."+k:k;if(v&&typeof v=="object"&&!Array.isArray(v)&&Object.keys(v).length)flat(v,key,r);else r[key]=v}return r};
 function watchCfg(){DB.doc("config/state").onSnapshot(sn=>{if(sn.exists){setST(sn.data());if(!$("home").classList.contains("hide"))home();adm()}},()=>{})}
 acct=function(){const g=FBU&&!FBU.isAnonymous;$("acn").textContent=NICK+" · "+(g?"signed in with Google":"guest");
@@ -753,7 +756,7 @@ $("gbtn").onclick=async()=>{try{const a=firebase.auth();if(FBU&&!FBU.isAnonymous
   FBU=a.currentUser;UID=FBU.uid;ISO=!!ADMIN_UID&&UID==ADMIN_UID;syncMe();acct()}catch(e){$("acs").textContent="Sign-in didn’t finish: "+(e.message||e.code)}};
 async function fbInit(){
   if(window.claude||!FB.apiKey)return;
-  try{const V="https://www.gstatic.com/firebasejs/10.12.2/firebase-";await ldjs(V+"app-compat.js");await Promise.all([ldjs(V+"auth-compat.js"),ldjs(V+"firestore-compat.js")]);
+  try{const V="https://www.gstatic.com/firebasejs/10.12.2/firebase-";await Promise.all(["app","auth","firestore"].map(n=>ldjs(V+n+"-compat.js")));
     firebase.initializeApp(FB);const au=firebase.auth(),fs=firebase.firestore();
     DB={doc:p=>{const r=fs.doc(p);return{get:()=>r.get(),set:d=>r.set(d),update:d=>r.update(flat(d)),onSnapshot:(a,b)=>r.onSnapshot(a,b)}},collection:c=>fs.collection(c)};
     let first=true;
