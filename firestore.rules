@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Leaderboard: anyone can read; you can only write your own entry.
+    match /lb/{uid} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.n is string && request.resource.data.n.size() <= 16;
+    }
+
+    // 1v1 rooms: signed-in players (guests count) can read and play.
+    match /rooms/{room} {
+      allow read, create, update: if request.auth != null;
+      allow delete: if false;
+    }
+
+    // Admin settings (daily reset, special scenarios): only you can write.
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == 'PASTE_YOUR_ADMIN_UID_HERE';
+    }
+  }
+}
